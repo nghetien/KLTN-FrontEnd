@@ -1,0 +1,7 @@
+// Action
+export const LOGIN_ACTION = 'LOGIN_ACTION';
+export const LOGIN_GOOGLE_ACTION = 'LOGIN_GOOGLE_ACTION';
+export const LOGOUT_ACTION = 'LOGOUT_ACTION';
+
+// Mutations
+export const CHANGE_AUTH_USER_MUTATIONS = 'CHANGE_AUTH_USER_MUTATIONS';

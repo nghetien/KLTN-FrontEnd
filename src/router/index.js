@@ -14,6 +14,11 @@ const routes = [
                 name: 'Home',
                 component: () => import('../views/Home.vue'),
             },
+            {
+                path: '/create-post',
+                name: 'CreatePost',
+                component: () => import('../views/user/CreatePost'),
+            },
         ],
     },
     {

@@ -1,12 +1,6 @@
 import axios from 'axios';
 
-import {
-    API_DOMAIN,
-    ERROR_DATA,
-    CONFIG_DATA_RESPONSE,
-    GET_ACCESS_TOKEN,
-    GET,
-} from '../config';
+import { API_DOMAIN, ERROR_DATA, CONFIG_DATA_RESPONSE, GET_ACCESS_TOKEN, GET } from '../config';
 import { USER_URL } from '../api_url';
 
 export const getInfoUserResponse = async () => {

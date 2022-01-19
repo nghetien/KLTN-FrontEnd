@@ -1,19 +1,9 @@
 <template>
     <a-layout>
-        <a-layout-sider
-            v-model:collapsed="collapsed"
-            :trigger="null"
-            collapsible
-        >
+        <a-layout-sider v-model:collapsed="collapsed" :trigger="null" collapsible>
             <div class="ant-pro-slider-menu-logo">
                 <a href="/" class="router-link-active"
-                    ><div
-                        style="
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        "
-                    >
+                    ><div style="display: flex; align-items: center; justify-content: center">
                         <img
                             src="~@/assets/logo.png"
                             class="logo"
@@ -33,11 +23,7 @@
                     </div>
                 </a>
             </div>
-            <a-menu
-                v-model:selectedKeys="selectedKeys"
-                theme="dark"
-                mode="inline"
-            >
+            <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
                 <a-menu-item key="profile">
                     <user-outlined />
                     <span>Thông tin cá nhân</span>
@@ -66,18 +52,10 @@
                 class="header-layout-custom"
                 :style="{
                     boxShadow: '0 1px 4px rgb(0 21 41 / 8%)',
-                    width: !collapsed
-                        ? 'calc(100% - 200px)'
-                        : 'calc(100% - 80px)',
+                    width: !collapsed ? 'calc(100% - 200px)' : 'calc(100% - 80px)',
                 }"
             >
-                <div
-                    style="
-                        display: flex;
-                        justify-content: flex-start;
-                        align-items: center;
-                    "
-                >
+                <div style="display: flex; justify-content: flex-start; align-items: center">
                     <menu-unfold-outlined
                         v-if="collapsed"
                         class="trigger"
@@ -124,10 +102,7 @@
                     </a-dropdown>
                 </div>
                 <div v-else>
-                    <a-button
-                        size="large"
-                        type="primary"
-                        class="menu-item-right-style"
+                    <a-button size="large" type="primary" class="menu-item-right-style"
                         ><router-link to="/login">Đăng nhập</router-link>
                     </a-button>
                 </div>
@@ -160,7 +135,6 @@
     } from '@ant-design/icons-vue';
     import { defineComponent, ref } from 'vue';
     import { mapActions, useStore } from 'vuex';
-    import { LOGOUT_ACTION } from '../store/modules/auth/types';
 
     export default defineComponent({
         name: 'ManagerLayout',
@@ -191,12 +165,10 @@
             };
         },
         methods: {
-            ...mapActions('auth', {
-                logout: LOGOUT_ACTION,
-            }),
+            ...mapActions('auth', ['LOGOUT']),
             logoutAccount() {
                 this.$gAuth.signOut();
-                this.logout();
+                this.LOGOUT();
             },
             toggleCollapsed() {
                 this.collapsed = !this.collapsed;

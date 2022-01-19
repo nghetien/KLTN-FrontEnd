@@ -5,11 +5,7 @@
                 <div class="top">
                     <div class="header">
                         <a href="/">
-                            <img
-                                src="~@/assets/logo.png"
-                                class="logo"
-                                alt="logo"
-                            />
+                            <img src="~@/assets/logo.png" class="logo" alt="logo" />
                             <span class="title">Diễn đàn học tập</span>
                         </a>
                     </div>
@@ -19,9 +15,7 @@
                 <router-view />
 
                 <div class="footer">
-                    <div class="copyright">
-                        Bản quyền bởi &copy; Nghê Quyết Tiến
-                    </div>
+                    <div class="copyright">Bản quyền bởi &copy; Nghê Quyết Tiến</div>
                 </div>
             </div>
         </div>
@@ -107,8 +101,7 @@
                         .title {
                             font-size: 33px;
                             color: rgba(0, 0, 0, 0.85);
-                            font-family: Avenir, 'Helvetica Neue', Arial,
-                                Helvetica, sans-serif;
+                            font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
                             font-weight: 600;
                             position: relative;
                             top: 2px;

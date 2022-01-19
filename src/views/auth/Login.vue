@@ -14,11 +14,7 @@
                     name="email"
                     :rules="[{ required: true, type: 'email' }]"
                 >
-                    <a-input
-                        placeholder="Email"
-                        v-model:value="formLogin.email"
-                        size="large"
-                    >
+                    <a-input placeholder="Email" v-model:value="formLogin.email" size="large">
                         <template #prefix
                             ><user-outlined style="color: rgba(0, 0, 0, 0.25)"
                         /></template>
@@ -44,9 +40,7 @@
 
                 <div class="login-form-wrap">
                     <a-form-item name="remember" no-style>
-                        <a-checkbox v-model:checked="formLogin.remember"
-                            >Nhớ tài khoản</a-checkbox
-                        >
+                        <a-checkbox v-model:checked="formLogin.remember">Nhớ tài khoản</a-checkbox>
                     </a-form-item>
                     <a class="login-form-forgot" href="">Quên mật khẩu?</a>
                 </div>
@@ -89,17 +83,8 @@
 <script>
     import { defineComponent, ref } from 'vue';
     import { mapActions } from 'vuex';
-    import {
-        UserOutlined,
-        LockOutlined,
-        GoogleOutlined,
-    } from '@ant-design/icons-vue';
+    import { UserOutlined, LockOutlined, GoogleOutlined } from '@ant-design/icons-vue';
     import { message } from 'ant-design-vue';
-
-    import {
-        LOGIN_ACTION,
-        LOGIN_GOOGLE_ACTION,
-    } from '../../store/modules/auth/types';
 
     const key = 'updatable';
 
@@ -130,16 +115,13 @@
             };
         },
         methods: {
-            ...mapActions('auth', {
-                login: LOGIN_ACTION,
-                loginGoogle: LOGIN_GOOGLE_ACTION,
-            }),
+            ...mapActions('auth', ['LOGIN', 'LOGIN_GOOGLE']),
             async onFinish() {
                 message.loading({
                     content: 'Loading...',
                     key,
                 });
-                const res = await this.login(this.formLogin);
+                const res = await this.LOGIN(this.formLogin);
                 if (res.status) {
                     await this.$router.push('/');
                     message.success({
@@ -163,9 +145,7 @@
                             content: 'Loading...',
                             key,
                         });
-                        const res = await this.loginGoogle(
-                            googleUser.getAuthResponse().id_token,
-                        );
+                        const res = await this.LOGIN_GOOGLE(googleUser.getAuthResponse().id_token);
                         if (res.status) {
                             await this.$router.push('/');
                             message.success({

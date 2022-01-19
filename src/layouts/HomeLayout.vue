@@ -19,15 +19,9 @@
                         borderBottom: 'none',
                     }"
                 >
-                    <a-menu-item key="home" style="font-weight: bold"
-                        >TRANG CHỦ</a-menu-item
-                    >
-                    <a-menu-item key="blog" style="font-weight: bold"
-                        >BÀI VIẾT</a-menu-item
-                    >
-                    <a-menu-item key="problem" style="font-weight: bold"
-                        >CÂU HỎI</a-menu-item
-                    >
+                    <a-menu-item key="home" style="font-weight: bold">TRANG CHỦ</a-menu-item>
+                    <a-menu-item key="blog" style="font-weight: bold">BÀI VIẾT</a-menu-item>
+                    <a-menu-item key="problem" style="font-weight: bold">CÂU HỎI</a-menu-item>
                 </a-menu>
             </div>
             <div class="add-flex-style menu-right-style">
@@ -42,21 +36,14 @@
                         <template #icon><UserOutlined /></template>
                     </a-avatar>
                     <a-dropdown>
-                        <a
-                            class="ant-dropdown-link"
-                            style="flex-shrink: 0"
-                            @click.prevent
-                        >
+                        <a class="ant-dropdown-link" style="flex-shrink: 0" @click.prevent>
                             {{ email }}
                             <DownOutlined />
                         </a>
                         <template #overlay>
                             <a-menu>
                                 <a-menu-item>
-                                    <router-link
-                                        to="/manager"
-                                        style="font-size: 16px"
-                                    >
+                                    <router-link to="/manager" style="font-size: 16px">
                                         <setting-outlined />
                                         Quản lý thông tin
                                     </router-link>
@@ -75,22 +62,17 @@
                         </template>
                     </a-dropdown>
                 </div>
-                <a-button
-                    v-else
-                    size="large"
-                    type="primary"
-                    class="menu-item-right-style"
+                <a-button v-else size="large" type="primary" class="menu-item-right-style"
                     ><router-link to="/login">Đăng nhập</router-link>
                 </a-button>
             </div>
         </a-layout-header>
 
-        <a-layout-content class="custom-content">
-            <div class="custom-content_container">
-                <router-view />
-            </div>
-        </a-layout-content>
-        <a-layout-footer :style="{ textAlign: 'center' }">
+        <div class="custom-content">
+            <router-view />
+        </div>
+
+        <a-layout-footer :style="{ textAlign: 'center', background: '#001529', color: '#fff' }">
             Ant Design ©2018 Created by Ant UED
         </a-layout-footer>
     </a-layout>
@@ -105,7 +87,6 @@
         LoginOutlined,
         UserOutlined,
     } from '@ant-design/icons-vue';
-    import { LOGOUT_ACTION } from '../store/modules/auth/types';
 
     export default defineComponent({
         name: 'HomeLayout',
@@ -118,7 +99,7 @@
         setup() {
             const store = useStore();
 
-            const selectedKeys = ref([]);
+            const selectedKeys = ref(['home']);
             let checkAccessToken = ref(store.state.accessToken.length !== 0);
             let email = ref(store.state.userInfo.email);
             let valueSearch = ref('');
@@ -131,12 +112,10 @@
             };
         },
         methods: {
-            ...mapActions('auth', {
-                logout: LOGOUT_ACTION,
-            }),
+            ...mapActions('auth', ['LOGOUT']),
             logoutAccount() {
                 this.$gAuth.signOut();
-                this.logout();
+                this.LOGOUT();
             },
         },
     });
@@ -145,7 +124,7 @@
 <style scoped lang="scss">
     .custom-header {
         position: fixed;
-        z-index: 1;
+        z-index: 9999;
         width: 100%;
         background-color: #fff;
         box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
@@ -161,9 +140,11 @@
 
         .menu-right-style {
             width: 100%;
+            justify-content: space-between;
 
             .input-search {
                 margin: 0 24px;
+                width: 60%;
             }
 
             .menu-item-right-style {
@@ -180,13 +161,8 @@
     }
 
     .custom-content {
-        padding: 0 24px;
-        margin-top: 92px;
-
-        &_container {
-            background: #fff;
-            padding: 24px;
-            min-height: 100vh;
-        }
+        margin-top: 64px;
+        background: #fff;
+        min-height: 100vh;
     }
 </style>

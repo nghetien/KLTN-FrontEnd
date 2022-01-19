@@ -3,10 +3,13 @@ import Antd from 'ant-design-vue';
 import VueCookies from 'vue3-cookies';
 import gAuth from 'vue3-google-auth';
 import { createApp } from 'vue';
-import 'ant-design-vue/dist/antd.css';
 
+import 'mathlive/dist/mathlive-static.css';
 import router from './router';
 import store from './store';
+
+import 'ant-design-vue/dist/antd.css';
+import 'highlight.js/styles/monokai.css';
 import './assets/styles/reset_css.scss';
 import './assets/styles/global.scss';
 

@@ -1,11 +1,8 @@
 import { createStore } from 'vuex';
-
-import { CHANGE_USER_INFO_MUTATIONS } from './modules/user/types';
-
-import { authModules } from './modules/auth/auth';
-import { userModules } from './modules/user/user';
-import { CHANGE_AUTH_USER_MUTATIONS } from './modules/auth/types';
+import { authModules } from './modules/auth';
+import { userModules } from './modules/user';
 import { STUDENT } from '../constants';
+import { postsModules } from './modules/posts';
 
 export default createStore({
     state: {
@@ -23,10 +20,10 @@ export default createStore({
         },
     },
     mutations: {
-        [CHANGE_AUTH_USER_MUTATIONS](state, newAccessToken) {
+        SET_AUTH_USER(state, newAccessToken) {
             state.accessToken = newAccessToken;
         },
-        [CHANGE_USER_INFO_MUTATIONS](state, newUserInfo) {
+        SET_USER_INFO(state, newUserInfo) {
             state.userInfo = {
                 email: newUserInfo.email || '',
                 studentCode: newUserInfo.student_code || '',
@@ -44,5 +41,6 @@ export default createStore({
     modules: {
         auth: authModules,
         user: userModules,
+        posts: postsModules,
     },
 });

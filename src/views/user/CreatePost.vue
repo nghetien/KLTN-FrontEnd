@@ -59,34 +59,36 @@
                         </div>
                         <a-popover
                             v-model:visible="visible"
-                            title="Thêm ký tự toán học"
+                            title="Gợi ý ký tự toán học"
                             trigger="click"
                         >
                             <template #content>
-                                <div
-                                    style="
-                                        display: flex;
-                                        flex-direction: column;
-                                        align-items: flex-end;
-                                    "
-                                >
+                                <div class="create-post__popover">
                                     <MathLiveComponent
                                         v-model="mathLive"
-                                        v-on:input="input"
+                                        v-on:input="inputMathLive"
                                         :options="{
                                             smartFence: false,
                                             virtualKeyboardMode: 'manual',
                                         }"
+                                    ></MathLiveComponent>
+                                    <a-textarea
+                                        v-model:value="renderLatexFromMathLive"
+                                        placeholder="Dạng Latex"
+                                        :rows="2"
+                                        readOnly
+                                    />
+                                    <a-button
+                                        type="primary"
+                                        style="margin-top: 16px"
+                                        @click="copyMathLive"
                                     >
-                                        f(x)=
-                                    </MathLiveComponent>
-                                    <a-button type="primary" style="margin-top: 16px"
-                                        >Thêm ký tự</a-button
-                                    >
+                                        Copy
+                                    </a-button>
                                 </div>
                             </template>
                             <a-button class="create-post__editor-add-feature" type="primary" ghost
-                                >Ký tự toán học</a-button
+                                >Gợi ý ký tự toán học</a-button
                             >
                         </a-popover>
                     </div>
@@ -136,6 +138,7 @@
     import { Modal } from 'ant-design-vue';
     import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
     import { MathLiveComponent } from '../../components';
+    import { renderKatex, markdownItRender } from '../../lib/index';
 
     Quill.register(QuillTable.TableCell);
     Quill.register(QuillTable.TableRow);
@@ -170,7 +173,6 @@
                     tableOptions.push('newtable_' + r + '_' + c);
                 }
             }
-
             return {
                 contentHtml,
                 convertToHtml,
@@ -223,15 +225,17 @@
         computed: {
             renderTextEditor() {
                 if (this.tab === 'html') {
-                    return this.convertToHtml;
+                    return renderKatex(this.convertToHtml);
                 } else {
-                    return this.contentMarkdown;
+                    return renderKatex(markdownItRender(this.contentMarkdown));
                 }
+            },
+            renderLatexFromMathLive() {
+                return '$' + this.mathLive + '$';
             },
         },
         methods: {
             onEditorReady(quill) {
-                console.log('editor ready!', quill);
                 this.quill = quill;
             },
             onEditorChange({ html }) {
@@ -248,13 +252,12 @@
                         content: createVNode(
                             'div',
                             { style: 'color:red;' },
-                            'Chuyển định dạng Editor',
+                            'Chuyển định dạng Editor, Nội dung có thể bị sai lệch',
                         ),
                         onOk() {
                             _this.tab = indexTab;
                             if (_this.tab === 'html') {
                                 _this.contentHtml = _this.contentMarkdown;
-                                _this.convertToHtml = _this.contentMarkdown;
                             } else {
                                 if (_this.quill) {
                                     _this.contentMarkdown = _this.quill.container.innerText;
@@ -264,8 +267,19 @@
                     });
                 }
             },
-            input() {
-                console.log(this.mathLive);
+            inputMathLive(data) {
+                if (typeof data === 'string' || data instanceof String) {
+                    this.mathLive = data;
+                }
+            },
+            copyMathLive(event) {
+                const clipboardData =
+                    event.clipboardData ||
+                    window.clipboardData ||
+                    event.originalEvent?.clipboardData ||
+                    navigator.clipboard;
+
+                clipboardData.writeText(this.renderLatexFromMathLive);
             },
         },
     });
@@ -338,6 +352,14 @@
             min-height: 100vh;
             margin-top: 16px;
             height: 100%;
+        }
+
+        &__popover {
+            width: 500px;
+            font-size: 24px !important;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
         }
     }
     @media (max-width: 700px) {

@@ -4,76 +4,40 @@
 
 <script>
     /* eslint no-unused-vars: ["error", { "args": "none" }] */
-    import MathLive from 'mathlive';
+    import { makeMathField } from 'mathlive';
     export default {
-        name: 'mathlivecomponent',
+        name: 'MathLiveComponent',
         props: {
-            id: {
-                type: String,
-                default: '',
-            },
-            value: {
-                type: String,
-                default: '',
-            },
-            config: {
-                type: Object,
-                default: () => ({}),
-            },
-            onKeystroke: {
-                type: Function,
-                default: function (_keystroke, _ev) {
-                    return true;
-                },
-            },
-            onMoveOutOf: {
-                type: Function,
-                default: function (_direction) {
-                    return true;
-                },
-            },
-            onTabOutOf: {
-                type: Function,
-                default: function (_direction) {
-                    return true;
-                },
-            },
+            id: { type: String, default: '' },
+            value: { type: String, default: '' },
+            options: { type: Object, default: () => ({}) },
+            onKeystroke: { type: Function, default: (t, e) => !0 },
+            onMoveOutOf: { type: Function, default: t => !0 },
+            onTabOutOf: { type: Function, default: t => !0 },
         },
         watch: {
             value: function (newValue, oldValue) {
-                // When the `value` prop (from the model) is modified
-                // update the mathfield to stay in sync, but don't send back content
-                // change notifications, to avoid infinite loops.
                 if (newValue !== oldValue) {
-                    this.$el.mathfield.latex(newValue, {
+                    this.$el.mathfield.setValue(newValue, {
                         suppressChangeNotifications: true,
                     });
                 }
             },
-            config: {
+            options: {
                 deep: true,
-                handler: function (config) {
-                    this.$el.mathfield.$setConfig(config);
+                handler(t, e) {
+                    JSON.stringify(t) !== JSON.stringify(e) && this.$el.mathfield.setOptions(t);
                 },
             },
         },
         mounted: function () {
-            // A new instance is being created
-            const vm = this; // Keep a reference to the ViewModel
-            // Wait until the DOM has been constructed...
+            const vm = this;
             this.$nextTick(function () {
-                // ... then make the MathField
-                MathLive.makeMathField(vm.$el, {
-                    ...vm.config,
-                    // To support the 'model' directive, this handler will connect
-                    // the content of the mathfield to the ViewModel
+                makeMathField(vm.$el, {
+                    ...vm.options,
                     onContentDidChange: _ => {
-                        // When the mathfield is updated, notify the model.
-                        // The initial input value is generated from the <slot>
-                        // content, so it may need to be updated.
-                        vm.$emit('input', vm.$el.mathfield.latex());
+                        vm.$emit('input', vm.$el.mathfield.getValue());
                     },
-                    // Those asynchronous notification handlers are translated to events
                     onFocus: _ => {
                         vm.$emit('focus');
                     },
@@ -92,14 +56,9 @@
                     onUndoStateDidChange: (_, command) => {
                         vm.$emit('undo-state-did-change', command);
                     },
-                    onVirtualKeyboardToggle: (_, visible, keyboardElement) => {
-                        vm.$emit('virtual-keyboard-toggle', visible, keyboardElement);
-                    },
                     onReadAloudStatus: (_, status) => {
-                        vm.$emit('read-aloud-status', status);
+                        vm.$emit('read-aloud-status-change', status);
                     },
-                    // Those notification handlers expect an answer back, so translate
-                    // them to callbacks via props
                     onKeystroke: function (_, keystroke, ev) {
                         return vm.onKeystroke(keystroke, ev);
                     },
@@ -113,57 +72,29 @@
             });
         },
         methods: {
-            /**
-             *
-             * @param {string} selector
-             */
-            perform: function (selector) {
-                this.$el.mathfield.$perform(selector);
+            executeCommand(t) {
+                this.$el.mathfield.executeCommand(t);
             },
-            /**
-             * @return {boolean}
-             */
-            hasFocus: function () {
-                return this.$el.mathfield.$hasFocus();
+            hasFocus() {
+                return this.$el.mathfield.hasFocus();
             },
-            focus: function () {
-                this.$el.mathfield.$focus();
+            focus() {
+                this.$el.mathfield.focus();
             },
-            blur: function () {
-                this.$el.mathfield.$blur();
+            blur() {
+                this.$el.mathfield.blur();
             },
-            text: function (format) {
-                return this.$el.mathfield.$text(format);
+            getValue(t) {
+                return this.$el.mathfield.getValue(t);
             },
-            selectedText: function (format) {
-                return this.$el.mathfield.$selectedText(format);
+            selectedText(t) {
+                return this.$el.mathfield.$selectedText(t);
             },
-            insert: function (text, options) {
-                this.$el.mathfield.$insert(text, options);
+            insert(t, e) {
+                this.$el.mathfield.insert(t, e);
             },
-            keystroke: function (keys, evt) {
-                return this.$el.mathfield.$keystroke(keys, evt);
-            },
-            typedText: function (text) {
-                this.$el.mathfield.$keystroke(text);
-            },
-            selectionIsCollapsed: function () {
-                return this.$el.mathfield.$selectionIsCollapsed();
-            },
-            selectionDepth: function () {
-                return this.$el.mathfield.$selectionDepth();
-            },
-            selectionAtStart: function () {
-                return this.$el.mathfield.$selectionAtStart();
-            },
-            selectionAtEnd: function () {
-                return this.$el.mathfield.$selectionAtEnd();
-            },
-            select: function () {
-                this.$el.mathfield.$select();
-            },
-            clearSelection: function () {
-                this.$el.mathfield.$clearSelection();
+            select() {
+                this.$el.mathfield.select();
             },
         },
     };

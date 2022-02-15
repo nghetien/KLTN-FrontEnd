@@ -20,7 +20,7 @@
                     }"
                 >
                     <a-menu-item key="home" style="font-weight: bold">TRANG CHỦ</a-menu-item>
-                    <a-menu-item key="blog" style="font-weight: bold">BÀI VIẾT</a-menu-item>
+                    <a-menu-item key="post" style="font-weight: bold">BÀI VIẾT</a-menu-item>
                     <a-menu-item key="problem" style="font-weight: bold">CÂU HỎI</a-menu-item>
                 </a-menu>
             </div>
@@ -32,7 +32,12 @@
                     class="input-search"
                 />
                 <div v-if="checkAccessToken" class="menu-item-right-style">
-                    <a-avatar style="margin-right: 8px; flex-shrink: 0">
+                    <a-avatar
+                        v-if="avatar"
+                        :src="avatar"
+                        style="margin-right: 8px; flex-shrink: 0"
+                    />
+                    <a-avatar v-else style="margin-right: 8px; flex-shrink: 0">
                         <template #icon><UserOutlined /></template>
                     </a-avatar>
                     <a-dropdown>
@@ -79,8 +84,9 @@
 </template>
 
 <script>
-    import { defineComponent, ref } from 'vue';
+    import { defineComponent, ref, watch } from 'vue';
     import { mapActions, useStore } from 'vuex';
+    import { useRouter } from 'vue-router';
     import {
         DownOutlined,
         SettingOutlined,
@@ -100,13 +106,23 @@
             const store = useStore();
 
             const selectedKeys = ref(['home']);
-            let checkAccessToken = ref(store.state.accessToken.length !== 0);
-            let email = ref(store.state.userInfo.email);
             let valueSearch = ref('');
 
+            const router = useRouter();
+            watch(selectedKeys, () => {
+                if (selectedKeys.value[0] === 'home') {
+                    router.push('/home');
+                } else if (selectedKeys.value[0] === 'post') {
+                    router.push('/post');
+                } else {
+                    router.push('/problem');
+                }
+            });
+
             return {
-                checkAccessToken,
-                email,
+                checkAccessToken: store.state.accessToken.length !== 0,
+                email: store.state.userInfo.email,
+                avatar: store.state.userInfo.avatar,
                 valueSearch,
                 selectedKeys,
             };
@@ -124,7 +140,7 @@
 <style scoped lang="scss">
     .custom-header {
         position: fixed;
-        z-index: 9999;
+        z-index: 2;
         width: 100%;
         background-color: #fff;
         box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);

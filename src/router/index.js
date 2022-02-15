@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import { AuthLayout, HomeLayout, ManagerLayout } from '../layouts/index';
+import store from '../store';
+import { ACCESS_TOKEN } from '../constants';
 
 const routes = [
     {
@@ -13,6 +15,21 @@ const routes = [
                 path: '/home',
                 name: 'Home',
                 component: () => import('../views/Home.vue'),
+            },
+            {
+                path: '/post',
+                name: 'HomePost',
+                component: () => import('../views/HomePost'),
+            },
+            {
+                path: '/problem',
+                name: 'HomeProblem',
+                component: () => import('../views/HomeProblem'),
+            },
+            {
+                path: '/post/:idPost',
+                name: 'PostDetail',
+                component: () => import('../views/user/PostDetail'),
             },
             {
                 path: '/create-post',
@@ -30,24 +47,24 @@ const routes = [
             {
                 path: '/manager/profile',
                 name: 'Profile',
-                component: () => import('../views/Profile.vue'),
+                component: () => import('../views/user/Profile.vue'),
             },
         ],
     },
     {
         path: '/auth',
-        name: 'auth',
+        name: 'Auth',
         component: AuthLayout,
         redirect: '/login',
         children: [
             {
                 path: '/login',
-                name: 'login',
+                name: 'Login',
                 component: () => import('../views/auth/Login.vue'),
             },
             {
                 path: '/register',
-                name: 'register',
+                name: 'Register',
                 component: () => import('../views/auth/Register.vue'),
             },
         ],
@@ -57,6 +74,36 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
     routes,
+});
+
+router.beforeEach((to, from, next) => {
+    if (store.state.accessToken && store.state.userInfo) {
+        next();
+    } else {
+        const accessToken = localStorage.getItem(ACCESS_TOKEN);
+        if (accessToken) {
+            store.commit('SET_AUTH_USER', accessToken);
+            store
+                .dispatch('user/GET_USER_INFO', null, {
+                    root: true,
+                })
+                .then(res => {
+                    if (res.status) {
+                        next();
+                    } else {
+                        if (to.fullPath === '/home' || to.fullPath === '/login') {
+                            next();
+                        } else {
+                            next({ name: 'Login' });
+                        }
+                    }
+                });
+        } else if (to.fullPath === '/home' || to.fullPath === '/login') {
+            next();
+        } else {
+            next({ name: 'Login' });
+        }
+    }
 });
 
 export default router;

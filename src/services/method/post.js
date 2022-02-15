@@ -1,8 +1,16 @@
 import axios from 'axios';
 
-import { API_DOMAIN, CONFIG_DATA_RESPONSE, ERROR_DATA, POST } from '../config';
-import { LOGIN_URL, LOGIN_GOOGLE_URL, LOGOUT_URL } from '../api_url';
+import { API_DOMAIN, CONFIG_DATA_RESPONSE, ERROR_DATA, GET_ACCESS_TOKEN, POST } from '../config';
+import {
+    LOGIN_URL,
+    LOGIN_GOOGLE_URL,
+    POST_URL,
+    COMMENT_URL,
+    BOOKMARK_URL,
+    LIKE_URL,
+} from '../api_url';
 
+/// Auth
 export const loginResponse = async (email, password) => {
     try {
         const res = await axios({
@@ -34,12 +42,69 @@ export const loginGoogleResponse = async idToken => {
     }
 };
 
-export const logoutResponse = async token => {
+/// Post
+export const createPostResponse = async data => {
     try {
         const res = await axios({
             method: POST,
-            url: `${API_DOMAIN}${LOGOUT_URL}`,
-            data: { token },
+            url: `${API_DOMAIN}${POST_URL}`,
+            data: data,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Comment
+export const createCommentResponse = async data => {
+    try {
+        const res = await axios({
+            method: POST,
+            url: `${API_DOMAIN}${COMMENT_URL}`,
+            data: data,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Bookmark
+export const toggleBookmarkResponse = async (idObject, type) => {
+    try {
+        const res = await axios({
+            method: POST,
+            url: `${API_DOMAIN}${BOOKMARK_URL}/${idObject}`,
+            data: {
+                type: type,
+            },
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Like
+export const handleLikeResponse = async (idObject, data) => {
+    try {
+        const res = await axios({
+            method: POST,
+            url: `${API_DOMAIN}${LIKE_URL}/${idObject}`,
+            data: data,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
         });
         return CONFIG_DATA_RESPONSE(res);
     } catch (e) {

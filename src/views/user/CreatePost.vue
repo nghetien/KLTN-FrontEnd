@@ -4,39 +4,54 @@
             <div class="create-post__header">
                 <a-dropdown>
                     <template #overlay>
-                        <a-menu>
-                            <a-menu-item key="1">
-                                <UserOutlined />
+                        <a-menu @click="handleClickStatus">
+                            <a-menu-item key="0">
+                                <LockOutlined />
                                 Riêng tư
                             </a-menu-item>
-                            <a-menu-item key="2">
-                                <UserOutlined />
+                            <a-menu-item key="1">
+                                <EyeOutlined />
                                 Công khai
                             </a-menu-item>
                         </a-menu>
                     </template>
                     <a-button>
-                        Trạng thái
+                        {{ showStatusPost }}
                         <DownOutlined />
                     </a-button>
                 </a-dropdown>
-                <a-button class="create-post__tags-btn" size="large" type="primary"
-                    >Đăng bài viết</a-button
+                <a-button
+                    class="create-post__tags-btn"
+                    size="large"
+                    type="primary"
+                    @click="createPost"
                 >
+                    Đăng bài viết
+                </a-button>
             </div>
 
             <h3 class="create-post__content-title">Tiêu đề</h3>
-            <a-input size="large" placeholder="Tiêu đề" />
+            <a-input v-model:value="title" size="large" placeholder="Tiêu đề" />
 
             <div class="create-post__tags">
                 <div class="create-post__tags-input">
-                    <h3 style="font-weight: bold; padding-bottom: 10px">Thẻ</h3>
-                    <a-input size="large" placeholder="Thẻ" />
+                    <div class="">
+                        <h3 style="font-weight: bold; padding-bottom: 10px">Thẻ</h3>
+                        <div :key="index" v-for="(value, index) in listTag" style="display: inline">
+                            <a-tag closable @close="deleteTag(index)" style="margin-bottom: 10px">
+                                {{ value }}
+                            </a-tag>
+                        </div>
+                    </div>
+                    <a-input v-model:value="tag" size="large" placeholder="Thẻ" />
                 </div>
-                <a-button class="create-post__tags-btn" size="large" type="primary"
-                    >Thêm thẻ</a-button
-                >
+                <a-button class="create-post__tags-btn" size="large" type="primary" @click="addTag">
+                    Thêm thẻ
+                </a-button>
             </div>
+
+            <h3 class="create-post__content-title">Nội dung thu gọn</h3>
+            <a-input v-model:value="shortContent" size="large" placeholder="Nội dung thu gọn" />
 
             <h3 class="create-post__content-title">Nội dung</h3>
 
@@ -115,7 +130,7 @@
                     />
                 </div>
                 <div class="create-post__preview">
-                    <a-button type="primary" ghost>Lưu</a-button>
+                    <a-button type="primary" ghost @click="createPost">Lưu</a-button>
                     <div class="create-post__show ql-snow">
                         <div
                             class="ql-editor"
@@ -130,7 +145,7 @@
 </template>
 
 <script>
-    import { UserOutlined, DownOutlined } from '@ant-design/icons-vue';
+    import { LockOutlined, EyeOutlined, DownOutlined } from '@ant-design/icons-vue';
     import { defineComponent, ref, createVNode } from 'vue';
     import { quillEditor, Quill } from 'vue3-quill';
     import ImageUploader from 'quill-image-uploader';
@@ -139,6 +154,10 @@
     import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
     import { MathLiveComponent } from '../../components';
     import { renderKatex, markdownItRender } from '../../lib/index';
+    import { PUBLIC, PRIVATE } from '../../constants/index';
+    import { createPostResponse } from '../../services/method/post';
+    import { message } from 'ant-design-vue';
+    import { useRouter } from 'vue-router';
 
     Quill.register(QuillTable.TableCell);
     Quill.register(QuillTable.TableRow);
@@ -150,17 +169,27 @@
     export default defineComponent({
         name: 'CreatePost',
         components: {
-            UserOutlined,
+            LockOutlined,
+            EyeOutlined,
             DownOutlined,
             quillEditor,
             MathLiveComponent,
         },
         setup() {
+            /// Status
+            const statusPost = ref(PRIVATE);
+            ///Title
+            const title = ref('');
+            /// Tag
+            const tag = ref('');
+            const listTag = ref([]);
+            /// Short content
+            const shortContent = ref('');
+            /// Editor
             const contentHtml = ref('');
             const convertToHtml = ref('');
             const quill = ref(null);
             const contentMarkdown = ref('');
-            const convertMarkdownToHtml = ref('');
             const tab = ref('html');
             const mathLive = ref('');
             const visible = ref(false);
@@ -173,12 +202,47 @@
                     tableOptions.push('newtable_' + r + '_' + c);
                 }
             }
+
+            const key = 'updatable';
+            const router = useRouter();
+            const createPost = async () => {
+                if (
+                    title.value &&
+                    shortContent.value &&
+                    (convertToHtml.value || contentMarkdown.value)
+                ) {
+                    const dataPost = {
+                        title: title.value,
+                        listTag: listTag.value,
+                        shortContent: shortContent.value,
+                        statusPost: statusPost.value,
+                        typeContent: tab.value,
+                        content: tab.value === 'html' ? convertToHtml.value : contentMarkdown.value,
+                    };
+                    message.loading({ content: 'Đăng bài viết...', key });
+                    const res = await createPostResponse(dataPost);
+                    if (res.status) {
+                        message.success({ content: 'Đăng bài viết thành công!', key, duration: 2 });
+                        await router.push({ name: 'Home' });
+                    } else {
+                        message.error('Đăng bài viết thất bại');
+                    }
+                } else {
+                    message.warning('Yêu cầu nhập đủ thông tin Tiêu đề và Nội dung thu gọn');
+                }
+            };
+
             return {
+                statusPost,
+                listStatus: [PRIVATE, PUBLIC],
+                title,
+                tag,
+                listTag,
+                shortContent,
                 contentHtml,
                 convertToHtml,
                 quill,
                 contentMarkdown,
-                convertMarkdownToHtml,
                 tab,
                 mathLive,
                 visible,
@@ -220,9 +284,16 @@
                         ],
                     },
                 },
+                createPost,
             };
         },
         computed: {
+            showStatusPost() {
+                if (this.statusPost === PRIVATE) {
+                    return 'Riêng tư';
+                }
+                return 'Công khai';
+            },
             renderTextEditor() {
                 if (this.tab === 'html') {
                     return renderKatex(this.convertToHtml);
@@ -235,6 +306,18 @@
             },
         },
         methods: {
+            handleClickStatus({ key }) {
+                this.statusPost = this.listStatus[key];
+            },
+            addTag() {
+                if (this.tag.length !== 0 && !this.listTag.includes(this.tag)) {
+                    this.listTag.push(this.tag.trim());
+                    this.tag = '';
+                }
+            },
+            deleteTag(index) {
+                this.listTag.splice(index, 0);
+            },
             onEditorReady(quill) {
                 this.quill = quill;
             },

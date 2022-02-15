@@ -1,8 +1,10 @@
-<template></template>
+<template>
+    <h1>HomePost</h1>
+</template>
 
 <script>
     export default {
-        name: 'CreateProblem',
+        name: 'HomePost',
     };
 </script>
 

@@ -1,52 +1,57 @@
 <template>
-    <div class="preview-post">
-        <a-avatar
-            size="large"
-            class="preview-post__avatar"
-            src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-        />
+    <router-link :to="`/post/${post._id}`" class="preview-post" @click="goToDetail">
+        <a-avatar v-if="post.avatar" size="large" class="preview-post__avatar" :src="post.avatar" />
+        <a-avatar v-else size="large" class="preview-post__avatar">
+            <template #icon>
+                <UserOutlined />
+            </template>
+        </a-avatar>
         <div>
             <div class="preview-post__header">
-                <span class="preview-post__header-name">Nghê Quyết Tiến</span>
-                <span class="preview-post__header-date">Ngày 10 Tháng 10 Năm 2020</span>
+                <span class="preview-post__header-name">{{ post.email }}</span>
+                <span class="preview-post__header-date">
+                    {{ convertTimestamp(post.lastUpdate) }}
+                </span>
             </div>
             <div class="preview-post__title">
-                <h3 class="preview-post__title-name">Vẽ Quốc kỳ Việt Nam bằng Flutter</h3>
+                <h3 class="preview-post__title-name">{{ post.namePost }}</h3>
                 <div class="preview-post__title-tag">
-                    <a-tag color="processing">Tag 1</a-tag>
-                    <a-tag color="processing">Tag 2</a-tag>
-                    <a-tag color="processing">Tag 3</a-tag>
-                    <a-tag color="processing">Tag 4</a-tag>
-                    <a-tag color="processing">Tag 5</a-tag>
+                    <a-tag color="processing" v-for="(tag, index) in post.tags" :key="index">{{
+                        tag.content
+                    }}</a-tag>
                 </div>
             </div>
             <div class="preview-post__short-content">
                 <p>
-                    Vấn đề "Mình học Toán để làm gì vậy anh. Anh làm IT lâu rồi có bao giờ cần sử
-                    dụng đến sin cos tan không?". Thằng em mình đang học lớp 12 hỏi
+                    {{ post.shortContent }}
                 </p>
             </div>
             <div class="preview-post__footer">
-                <div class="preview-post__footer-item"><like-outlined /> 2.2K</div>
-                <div class="preview-post__footer-item"><dislike-outlined /> 2.2K</div>
-                <div class="preview-post__footer-item"><eye-outlined /> 2.2K</div>
-                <div class="preview-post__footer-item"><tag-outlined /> 100</div>
-                <div class="preview-post__footer-item"><message-outlined /> 200</div>
+                <div class="preview-post__footer-item"><like-outlined /> {{ post.like }}</div>
+                <div class="preview-post__footer-item"><dislike-outlined /> {{ post.dislike }}</div>
+                <div class="preview-post__footer-item"><eye-outlined /> {{ post.view }}</div>
+                <div class="preview-post__footer-item"><tag-outlined /> {{ post.tags.length }}</div>
+                <div class="preview-post__footer-item"><message-outlined /> {{ post.comment }}</div>
+                <div class="preview-post__footer-item"><book-outlined /> {{ post.bookmark }}</div>
             </div>
         </div>
-    </div>
+    </router-link>
     <a-divider />
 </template>
 
 <script>
+    import { UserOutlined } from '@ant-design/icons-vue';
     import { defineComponent } from 'vue';
+    import { useRouter } from 'vue-router';
     import {
         EyeOutlined,
         TagOutlined,
         MessageOutlined,
         DislikeOutlined,
         LikeOutlined,
+        BookOutlined,
     } from '@ant-design/icons-vue';
+    import { convertTimestamp } from '../../lib/index';
 
     export default defineComponent({
         name: 'PreviewPost',
@@ -56,6 +61,26 @@
             MessageOutlined,
             DislikeOutlined,
             LikeOutlined,
+            UserOutlined,
+            BookOutlined,
+        },
+        props: {
+            post: {
+                type: Object,
+                default: () => ({}),
+            },
+        },
+        setup(props) {
+            const router = useRouter();
+            const goToDetail = () => {
+                router.push(`/post/${props.post._id}`);
+                window.scrollTo(0, 0);
+            };
+
+            return {
+                convertTimestamp,
+                goToDetail,
+            };
         },
     });
 </script>
@@ -74,7 +99,8 @@
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            margin: 10px 0;
+            margin-bottom: 10px;
+            margin-top: 6px;
             line-height: 24px;
 
             &-name {

@@ -1,5 +1,9 @@
+export const ACCESS_TOKEN = 'ACCESS_TOKEN';
 export const STUDENT = 'STUDENT';
 export const ADMIN = 'ADMIN';
 export const EMAIL = 'EMAIL';
 export const PASSWORD = 'PASSWORD';
 export const REMEMBER = 'REMEMBER';
+export const PRIVATE = 'PRIVATE';
+export const PUBLIC = 'PUBLIC';
+export const POST = 'POST';

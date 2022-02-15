@@ -4,14 +4,7 @@
         <div class="content-view">
             <div class="content-view-list">
                 <h2 class="content-view-list__title">BÀI VIẾT</h2>
-                <PreviewPost />
-                <PreviewPost />
-                <PreviewPost />
-                <PreviewPost />
-                <PreviewPost />
-                <PreviewPost />
-                <PreviewPost />
-                <PreviewPost />
+                <PreviewPost v-for="(post, index) in allPost" :key="index" :post="post" />
             </div>
             <div class="recommend">
                 <h2 class="recommend__title">CÂU HỎI MỚI NHẤT</h2>
@@ -26,15 +19,31 @@
 
 <script>
     import { PreviewPost, TabBar, RecommendProblem } from '../components/index';
+    import { defineComponent, onMounted, ref } from 'vue';
+    import { getAllPostResponse } from '../services/method/get';
 
-    export default {
+    export default defineComponent({
         name: 'Home',
         components: {
             PreviewPost,
             TabBar,
             RecommendProblem,
         },
-    };
+        setup() {
+            const allPost = ref([]);
+
+            onMounted(async () => {
+                const res = await getAllPostResponse();
+                if (res.status) {
+                    allPost.value = res.data;
+                }
+            });
+
+            return {
+                allPost,
+            };
+        },
+    });
 </script>
 
 <style scoped lang="scss">

@@ -11,6 +11,8 @@ import 'katex/dist/katex.min.css';
 import 'mathlive/dist/mathlive-fonts.css';
 import 'ant-design-vue/dist/antd.css';
 import 'highlight.js/styles/monokai.css';
+import 'vue3-quill/lib/vue3-quill.css';
+
 import './assets/styles/reset_css.scss';
 import './assets/styles/global.scss';
 

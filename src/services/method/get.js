@@ -1,7 +1,17 @@
 import axios from 'axios';
 
 import { API_DOMAIN, ERROR_DATA, CONFIG_DATA_RESPONSE, GET_ACCESS_TOKEN, GET } from '../config';
-import { BOOKMARK_URL, COMMENT_URL, LIKE_URL, POST_URL, USER_URL } from '../api_url';
+import {
+    BOOKMARK_URL,
+    COMMENT_URL,
+    LIKE_URL,
+    POST_URL,
+    USER_URL,
+    FOLLOW_URL,
+    PROBLEM_URL,
+    CONVERSATION_URL,
+    MESSAGE_URL,
+} from '../api_url';
 
 /// info user
 export const getInfoUserResponse = async () => {
@@ -20,11 +30,15 @@ export const getInfoUserResponse = async () => {
 };
 
 /// get post
-export const getAllPostResponse = async () => {
+export const getAllPostResponse = async (params = {}) => {
     try {
         const res = await axios({
             method: GET,
             url: `${API_DOMAIN}${POST_URL}`,
+            params,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
         });
         return CONFIG_DATA_RESPONSE(res);
     } catch (e) {
@@ -36,6 +50,34 @@ export const getPostByIdResponse = async idPost => {
         const res = await axios({
             method: GET,
             url: `${API_DOMAIN}${POST_URL}/${idPost}`,
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// get problem
+export const getAllProblemResponse = async (params = {}) => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${PROBLEM_URL}`,
+            params,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+export const getProblemByIdResponse = async idProblem => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${PROBLEM_URL}/${idProblem}`,
         });
         return CONFIG_DATA_RESPONSE(res);
     } catch (e) {
@@ -78,6 +120,70 @@ export const getLikeOrDislikeResponse = async idObject => {
         const res = await axios({
             method: GET,
             url: `${API_DOMAIN}${LIKE_URL}/${idObject}`,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// follow
+export const getFollowedResponse = async emailUserFollow => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${FOLLOW_URL}/${emailUserFollow}`,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// correct answer
+export const toggleCorrectAnswerResponse = async idProblem => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${PROBLEM_URL}/correctAnswer/${idProblem}`,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// conversation
+export const getAllConversationResponse = async () => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${CONVERSATION_URL}`,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// message
+export const getAllMessageByConversationIdResponse = async conversationId => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${MESSAGE_URL}/${conversationId}`,
             headers: {
                 token: GET_ACCESS_TOKEN(),
             },

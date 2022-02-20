@@ -2,7 +2,7 @@
     <a-layout>
         <a-layout-sider v-model:collapsed="collapsed" :trigger="null" collapsible>
             <div class="ant-pro-slider-menu-logo">
-                <a href="/" class="router-link-active"
+                <router-link to="/" class="router-link-active"
                     ><div style="display: flex; align-items: center; justify-content: center">
                         <img
                             src="~@/assets/logo.png"
@@ -21,7 +21,7 @@
                             Group TI
                         </h1>
                     </div>
-                </a>
+                </router-link>
             </div>
             <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
                 <a-menu-item key="profile">

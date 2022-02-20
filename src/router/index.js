@@ -36,6 +36,16 @@ const routes = [
                 name: 'CreatePost',
                 component: () => import('../views/user/CreatePost'),
             },
+            {
+                path: '/create-problem',
+                name: 'CreateProblem',
+                component: () => import('../views/user/CreateProblem'),
+            },
+            {
+                path: '/problem/:idProblem',
+                name: 'ProblemDetail',
+                component: () => import('../views/user/ProblemDetail'),
+            },
         ],
     },
     {
@@ -82,22 +92,26 @@ router.beforeEach((to, from, next) => {
     } else {
         const accessToken = localStorage.getItem(ACCESS_TOKEN);
         if (accessToken) {
-            store.commit('SET_AUTH_USER', accessToken);
-            store
-                .dispatch('user/GET_USER_INFO', null, {
-                    root: true,
-                })
-                .then(res => {
-                    if (res.status) {
-                        next();
-                    } else {
-                        if (to.fullPath === '/home' || to.fullPath === '/login') {
+            if (to.fullPath === '/login') {
+                next({ name: 'Home' });
+            } else {
+                store.commit('SET_AUTH_USER', accessToken);
+                store
+                    .dispatch('user/GET_USER_INFO', null, {
+                        root: true,
+                    })
+                    .then(res => {
+                        if (res.status) {
                             next();
                         } else {
-                            next({ name: 'Login' });
+                            if (to.fullPath === '/home' || to.fullPath === '/login') {
+                                next();
+                            } else {
+                                next({ name: 'Login' });
+                            }
                         }
-                    }
-                });
+                    });
+            }
         } else if (to.fullPath === '/home' || to.fullPath === '/login') {
             next();
         } else {

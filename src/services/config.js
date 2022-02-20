@@ -1,6 +1,6 @@
 import store from '../store';
 
-export const API_DOMAIN = 'http://localhost:3000';
+export const API_DOMAIN = process.env.VUE_APP_API_DOMAIN;
 export const GET = 'get';
 export const POST = 'post';
 export const PUT = 'put';

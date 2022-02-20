@@ -1,8 +1,11 @@
 import { createStore } from 'vuex';
+import { io } from 'socket.io-client';
+
 import { authModules } from './modules/auth';
 import { userModules } from './modules/user';
-import { STUDENT } from '../constants';
+import { ADD_USER, STUDENT } from '../constants';
 import { postsModules } from './modules/posts';
+import { API_DOMAIN } from '../services/config';
 
 export default createStore({
     state: {
@@ -18,6 +21,9 @@ export default createStore({
             majorCode: '',
             status: true,
         },
+        isOpenMess: false,
+        dataMessOpened: {},
+        currentIO: null,
     },
     mutations: {
         SET_AUTH_USER(state, newAccessToken) {
@@ -35,6 +41,22 @@ export default createStore({
                 majorCode: newUserInfo.major_code || '',
                 status: newUserInfo.status || true,
             };
+            if (!state.currentIO && newUserInfo.email) {
+                state.currentIO = io(API_DOMAIN, { transports: ['websocket'] });
+                state.currentIO.emit(ADD_USER, newUserInfo.email);
+            }
+        },
+        OPEN_MESS(state, dataConversation) {
+            state.isOpenMess = true;
+            state.dataMessOpened = dataConversation;
+        },
+        CLOSE_MESS(state) {
+            state.isOpenMess = false;
+            state.dataMessOpened = {};
+        },
+        CLEAR_CURRENT_IO(state) {
+            state.currentIO.disconnect(true);
+            state.currentIO = null;
         },
     },
     actions: {},

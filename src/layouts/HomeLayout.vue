@@ -2,7 +2,7 @@
     <a-layout>
         <a-layout-header class="custom-header">
             <div class="add-flex-style">
-                <router-link class="logo" to="/">
+                <router-link class="logo" to="/" @click="handleClickLogo">
                     <img
                         src="~@/assets/logo.png"
                         class="logo"
@@ -32,6 +32,8 @@
                     class="input-search"
                 />
                 <div v-if="checkAccessToken" class="menu-item-right-style">
+                    <BellComponent />
+                    <MessComponent />
                     <a-avatar
                         v-if="avatar"
                         :src="avatar"
@@ -84,15 +86,16 @@
 </template>
 
 <script>
-    import { defineComponent, ref, watch } from 'vue';
+    import { defineComponent, ref, watch, onMounted } from 'vue';
     import { mapActions, useStore } from 'vuex';
-    import { useRouter } from 'vue-router';
+    import { useRouter, useRoute } from 'vue-router';
     import {
         DownOutlined,
         SettingOutlined,
         LoginOutlined,
         UserOutlined,
     } from '@ant-design/icons-vue';
+    import { MessComponent, BellComponent } from '../components/index';
 
     export default defineComponent({
         name: 'HomeLayout',
@@ -101,21 +104,41 @@
             DownOutlined,
             LoginOutlined,
             SettingOutlined,
+            MessComponent,
+            BellComponent,
         },
         setup() {
             const store = useStore();
+            const router = useRouter();
+            const route = useRoute();
 
             const selectedKeys = ref(['home']);
-            let valueSearch = ref('');
+            const valueSearch = ref('');
 
-            const router = useRouter();
             watch(selectedKeys, () => {
                 if (selectedKeys.value[0] === 'home') {
                     router.push('/home');
                 } else if (selectedKeys.value[0] === 'post') {
                     router.push('/post');
-                } else {
+                } else if (selectedKeys.value[0] === 'problem') {
                     router.push('/problem');
+                }
+                window.scrollTo(0, 0);
+            });
+
+            const handleClickLogo = () => {
+                selectedKeys.value[0] = 'home';
+            };
+
+            onMounted(() => {
+                if (route.path === '/home') {
+                    selectedKeys.value[0] = 'home';
+                } else if (route.path === '/post') {
+                    selectedKeys.value[0] = 'post';
+                } else if (route.path === '/problem') {
+                    selectedKeys.value[0] = 'problem';
+                } else {
+                    selectedKeys.value[0] = '';
                 }
             });
 
@@ -125,6 +148,7 @@
                 avatar: store.state.userInfo.avatar,
                 valueSearch,
                 selectedKeys,
+                handleClickLogo,
             };
         },
         methods: {

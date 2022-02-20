@@ -53,6 +53,8 @@ export const authModules = {
             if (res.status) {
                 commit('SET_AUTH_USER', '', { root: true });
                 commit('SET_USER_INFO', {}, { root: true });
+                commit('CLOSE_MESS', {}, { root: true });
+                commit('CLEAR_CURRENT_IO', {}, { root: true });
             }
             return res;
         },

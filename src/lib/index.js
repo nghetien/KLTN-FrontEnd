@@ -1,5 +1,5 @@
 import renderKatex from './katexRender';
 import markdownItRender from './markdownItRender';
-import convertTimestamp from './convertTimestamp';
+import convertTimestamp, { convertStringDateToTimestamp } from './convertTimestamp';
 
-export { renderKatex, markdownItRender, convertTimestamp };
+export { renderKatex, markdownItRender, convertTimestamp, convertStringDateToTimestamp };

@@ -28,13 +28,21 @@
                     class="post-detail__icon"
                     style="margin-top: 20px"
                 />
+                <CheckOutlined
+                    :style="{
+                        color: isHaveCorrectAnswer ? 'var(--green)' : 'var(--grey)',
+                    }"
+                    @click="toggleCorrectAnswer"
+                    class="post-detail__icon"
+                    style="margin-top: 20px"
+                />
             </div>
             <div class="post-detail__view">
                 <div class="post-detail__view-info">
                     <div class="post-detail__view-user">
                         <a-avatar
-                            v-if="postDetail.avatar"
-                            :src="postDetail.avatar"
+                            v-if="problemDetail.avatar"
+                            :src="problemDetail.avatar"
                             size="large"
                             class="preview-post__avatar"
                         />
@@ -44,7 +52,7 @@
                             </template>
                         </a-avatar>
                         <router-link to="/" class="post-detail__view-user-name">{{
-                            postDetail.email ? postDetail.email : ''
+                            problemDetail.email ? problemDetail.email : ''
                         }}</router-link>
                         <a-button v-if="isShowFollow" type="primary" ghost @click="handleFollow">{{
                             isFollow ? 'Bỏ theo dõi' : 'Theo dõi'
@@ -53,15 +61,15 @@
                     <div class="post-detail__view-count">
                         <div class="post-detail__view-count-item">
                             <EyeOutlined class="post-detail__view-count-item-icon" />
-                            <p>{{ postDetail.view }}</p>
+                            <p>{{ problemDetail.view }}</p>
                         </div>
                         <div class="post-detail__view-count-item">
                             <MessageOutlined class="post-detail__view-count-item-icon" />
-                            <p>{{ postDetail.comment }}</p>
+                            <p>{{ problemDetail.comment }}</p>
                         </div>
                         <div class="post-detail__view-count-item">
                             <BookOutlined class="post-detail__view-count-item-icon" />
-                            <p>{{ postDetail.bookmark }}</p>
+                            <p>{{ problemDetail.bookmark }}</p>
                         </div>
                     </div>
                 </div>
@@ -74,23 +82,23 @@
                 </div>
                 <div style="margin-top: 40px; padding: 0 15px">
                     <h2>
-                        <i>Chỉnh sửa mới nhất:</i> {{ convertTimestamp(postDetail.lastUpdate) }}
+                        <i>Chỉnh sửa mới nhất:</i> {{ convertTimestamp(problemDetail.lastUpdate) }}
                     </h2>
                 </div>
                 <div class="post-detail__comment">
                     <Comment
                         @changeCountComment="changeCountComment($event)"
-                        :idObject="route.params.idPost"
-                        :type="POST"
+                        :idObject="route.params.idProblem"
+                        :type="PROBLEM"
                     />
                 </div>
             </div>
             <div class="post-detail__recommend">
                 <h2 class="post-detail__recommend-title">CÂU HỎI MỚI NHẤT</h2>
-                <RecommendProblem />
-                <RecommendProblem />
-                <RecommendProblem />
-                <RecommendProblem />
+                <RecommendPost />
+                <RecommendPost />
+                <RecommendPost />
+                <RecommendPost />
             </div>
         </div>
     </div>
@@ -107,17 +115,19 @@
         UserOutlined,
         EyeOutlined,
         MessageOutlined,
+        CheckOutlined,
     } from '@ant-design/icons-vue';
-    import { RecommendProblem, Comment } from '../../components/index';
+    import { RecommendPost, Comment } from '../../components/index';
     import {
         getBookmarkResponse,
         getFollowedResponse,
         getLikeOrDislikeResponse,
-        getPostByIdResponse,
+        getProblemByIdResponse,
+        toggleCorrectAnswerResponse,
     } from '../../services/method/get';
     import { message } from 'ant-design-vue';
     import { markdownItRender, renderKatex } from '../../lib';
-    import { POST } from '../../constants/index';
+    import { PROBLEM } from '../../constants/index';
     import { convertTimestamp } from '../../lib/index';
     import {
         handleLikeResponse,
@@ -126,7 +136,7 @@
     } from '../../services/method/post';
 
     export default defineComponent({
-        name: 'PostDetail',
+        name: 'ProblemDetail',
         components: {
             CaretUpOutlined,
             CaretDownOutlined,
@@ -134,40 +144,44 @@
             UserOutlined,
             EyeOutlined,
             MessageOutlined,
-            RecommendProblem,
+            RecommendPost,
             Comment,
+            CheckOutlined,
         },
         setup() {
             const route = useRoute();
             const router = useRouter();
             const store = useStore();
 
-            const postDetail = ref({});
+            const problemDetail = ref({});
             const isBookmark = ref(false);
             const like = ref(0);
             const countLike = ref(0);
+            const isHaveCorrectAnswer = ref(false);
             const isFollow = ref(false);
             const isShowFollow = ref(false);
 
             const loadDataInit = async () => {
-                const res = await getPostByIdResponse(route.params.idPost);
+                const res = await getProblemByIdResponse(route.params.idProblem);
                 if (res.status) {
-                    postDetail.value = res.data;
+                    problemDetail.value = res.data;
+                    countLike.value = problemDetail.value.like - problemDetail.value.dislike;
+                    isHaveCorrectAnswer.value = problemDetail.value.isHaveCorrectAnswer;
                 } else {
-                    message.error('Tải bài viết thất bại');
+                    message.error('Tải câu hỏi thất bại');
                     await router.push('/');
                 }
             };
 
             const loadIsBookmark = async () => {
-                const res = await getBookmarkResponse(route.params.idPost);
+                const res = await getBookmarkResponse(route.params.idProblem);
                 if (res.status) {
                     isBookmark.value = res.data.status;
                 }
             };
 
             const loadLikeOrDislike = async () => {
-                const res = await getLikeOrDislikeResponse(route.params.idPost);
+                const res = await getLikeOrDislikeResponse(route.params.idProblem);
                 if (res.status) {
                     if (Object.keys(res.data).length !== 0) {
                         if (res.data.isLike) {
@@ -182,15 +196,15 @@
             };
 
             const loadFollowed = async () => {
-                const res = await getFollowedResponse(postDetail.value.email);
+                const res = await getFollowedResponse(problemDetail.value.email);
                 if (res.status) {
                     isFollow.value = true;
                 }
             };
 
             const handleLike = async () => {
-                const res = await handleLikeResponse(route.params.idPost, {
-                    type: POST,
+                const res = await handleLikeResponse(route.params.idProblem, {
+                    type: PROBLEM,
                     isLike: true,
                 });
                 if (res.status) {
@@ -208,8 +222,8 @@
             };
 
             const handleDislike = async () => {
-                const res = await handleLikeResponse(route.params.idPost, {
-                    type: POST,
+                const res = await handleLikeResponse(route.params.idProblem, {
+                    type: PROBLEM,
                     isLike: false,
                 });
                 if (res.status) {
@@ -228,23 +242,30 @@
 
             onMounted(async () => {
                 await Promise.all([loadDataInit(), loadIsBookmark(), loadLikeOrDislike()]);
-                if (store.state.userInfo.email !== postDetail.value.email) {
+                if (store.state.userInfo.email !== problemDetail.value.email) {
                     isShowFollow.value = true;
                     await loadFollowed();
                 }
             });
 
             const changeCountComment = value => {
-                postDetail.value.comment += value;
+                problemDetail.value.comment += value;
             };
 
             const toggleBookmark = async () => {
-                await toggleBookmarkResponse(route.params.idPost, POST);
+                await toggleBookmarkResponse(route.params.idProblem, PROBLEM);
                 isBookmark.value = !isBookmark.value;
                 if (isBookmark.value) {
-                    postDetail.value.bookmark += 1;
+                    problemDetail.value.bookmark += 1;
                 } else {
-                    postDetail.value.bookmark -= 1;
+                    problemDetail.value.bookmark -= 1;
+                }
+            };
+
+            const toggleCorrectAnswer = async () => {
+                if (store.state.userInfo.email === problemDetail.value.email) {
+                    isHaveCorrectAnswer.value = !isHaveCorrectAnswer.value;
+                    await toggleCorrectAnswerResponse(problemDetail.value._id);
                 }
             };
 
@@ -252,16 +273,16 @@
                 isFollow.value = !isFollow.value;
                 await toggleFollowResponse({
                     email: store.state.userInfo.email,
-                    emailUserFollow: postDetail.value.email,
+                    emailUserFollow: problemDetail.value.email,
                 });
             };
 
             const renderContent = computed(() => {
-                if (postDetail.value && postDetail.value.typeContent) {
-                    if (postDetail.value.typeContent === 'html') {
-                        return renderKatex(postDetail.value.content);
+                if (problemDetail.value && problemDetail.value.typeContent) {
+                    if (problemDetail.value.typeContent === 'html') {
+                        return renderKatex(problemDetail.value.content);
                     } else {
-                        return renderKatex(markdownItRender(postDetail.value.content));
+                        return renderKatex(markdownItRender(problemDetail.value.content));
                     }
                 } else {
                     return '';
@@ -269,12 +290,13 @@
             });
 
             return {
-                POST,
+                PROBLEM,
                 route,
-                postDetail,
+                problemDetail,
                 isBookmark,
                 like,
                 countLike,
+                isHaveCorrectAnswer,
                 isFollow,
                 isShowFollow,
                 renderContent,
@@ -283,6 +305,7 @@
                 convertTimestamp,
                 changeCountComment,
                 toggleBookmark,
+                toggleCorrectAnswer,
                 handleFollow,
             };
         },

@@ -130,7 +130,7 @@
                     />
                 </div>
                 <div class="create-post__preview">
-                    <a-button type="primary" ghost @click="createPost">Lưu</a-button>
+                    <a-button type="primary" ghost @click="savePost">Lưu</a-button>
                     <div class="create-post__show ql-snow">
                         <div
                             class="ql-editor"
@@ -232,6 +232,33 @@
                 }
             };
 
+            const savePost = async () => {
+                if (
+                    title.value &&
+                    shortContent.value &&
+                    (convertToHtml.value || contentMarkdown.value)
+                ) {
+                    const dataPost = {
+                        title: title.value,
+                        listTag: listTag.value,
+                        shortContent: shortContent.value,
+                        statusPost: PRIVATE,
+                        typeContent: tab.value,
+                        content: tab.value === 'html' ? convertToHtml.value : contentMarkdown.value,
+                    };
+                    message.loading({ content: 'Lưu bài viết...', key });
+                    const res = await createPostResponse(dataPost);
+                    if (res.status) {
+                        message.success({ content: 'Lưu viết thành công!', key, duration: 2 });
+                        await router.push({ name: 'Home' });
+                    } else {
+                        message.error('Lưu viết thất bại');
+                    }
+                } else {
+                    message.warning('Yêu cầu nhập đủ thông tin Tiêu đề và Nội dung thu gọn');
+                }
+            };
+
             return {
                 statusPost,
                 listStatus: [PRIVATE, PUBLIC],
@@ -285,6 +312,7 @@
                     },
                 },
                 createPost,
+                savePost,
             };
         },
         computed: {

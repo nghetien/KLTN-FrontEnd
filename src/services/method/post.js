@@ -8,6 +8,9 @@ import {
     COMMENT_URL,
     BOOKMARK_URL,
     LIKE_URL,
+    FOLLOW_URL,
+    PROBLEM_URL,
+    MESSAGE_URL,
 } from '../api_url';
 
 /// Auth
@@ -48,6 +51,23 @@ export const createPostResponse = async data => {
         const res = await axios({
             method: POST,
             url: `${API_DOMAIN}${POST_URL}`,
+            data: data,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Problem
+export const createProblemResponse = async data => {
+    try {
+        const res = await axios({
+            method: POST,
+            url: `${API_DOMAIN}${PROBLEM_URL}`,
             data: data,
             headers: {
                 token: GET_ACCESS_TOKEN(),
@@ -101,6 +121,40 @@ export const handleLikeResponse = async (idObject, data) => {
         const res = await axios({
             method: POST,
             url: `${API_DOMAIN}${LIKE_URL}/${idObject}`,
+            data: data,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Follow
+export const toggleFollowResponse = async data => {
+    try {
+        const res = await axios({
+            method: POST,
+            url: `${API_DOMAIN}${FOLLOW_URL}`,
+            data: data,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Message
+export const createNewMessageByConversationIdResponse = async (conversationId, data) => {
+    try {
+        const res = await axios({
+            method: POST,
+            url: `${API_DOMAIN}${MESSAGE_URL}/${conversationId}`,
             data: data,
             headers: {
                 token: GET_ACCESS_TOKEN(),

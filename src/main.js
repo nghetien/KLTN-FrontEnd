@@ -3,6 +3,7 @@ import Antd from 'ant-design-vue';
 import VueCookies from 'vue3-cookies';
 import gAuth from 'vue3-google-auth';
 import { createApp } from 'vue';
+import Chat from 'vue3-beautiful-chat';
 
 import router from './router';
 import store from './store';
@@ -26,6 +27,7 @@ const app = createApp(App);
 
 app.use($gAuth);
 app.use(VueCookies);
+app.use(Chat);
 app.use(Antd);
 app.use(store);
 app.use(router);

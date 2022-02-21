@@ -76,7 +76,7 @@
         </a-layout-header>
 
         <div class="custom-content">
-            <router-view />
+            <router-view :key="$route.fullPath" />
         </div>
 
         <a-layout-footer :style="{ textAlign: 'center', background: '#001529', color: '#fff' }">
@@ -165,7 +165,7 @@
     .custom-header {
         position: fixed;
         z-index: 2;
-        width: 100%;
+        width: calc(100vw);
         background-color: #fff;
         box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
         padding: 0 25px;

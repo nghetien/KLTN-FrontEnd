@@ -1,56 +1,64 @@
 <template>
-    <a-dropdown placement="bottomRight" :trigger="['click']" @click="handleOnClickMessage">
-        <MessageOutlined style="font-size: 24px; cursor: pointer; margin-right: 20px" />
-        <template #overlay>
-            <a-menu>
-                <a-menu-item
-                    v-for="(conversation, index) in allMessage"
-                    :key="index"
-                    @click="openMessage(conversation)"
-                >
-                    <div class="participant">
-                        <a-avatar
-                            v-if="conversation.avatarParticipant"
-                            :src="conversation.avatarParticipant"
-                            size="large"
-                            class="participant-icon"
-                        />
-                        <a-avatar v-else size="large" class="participant-icon">
-                            <template #icon><UserOutlined /></template>
-                        </a-avatar>
-                        <div class="participant-mess">
-                            <h3>
-                                <b>{{ conversation.emailParticipant }}</b>
-                            </h3>
-                            <p>
-                                {{
-                                    conversation.lastMessage && conversation.lastMessage.text
-                                        ? conversation.lastMessage.text
-                                        : ''
-                                }}
-                            </p>
-                            <p
-                                :style="{
-                                    fontSize: '12px',
-                                    color: 'var(--grey)',
-                                }"
-                            >
-                                <i>{{ convertStringDateToTimestamp(conversation.createdAt) }}</i>
-                            </p>
+    <div class="mess-component">
+        <span v-if="newNotificationMess > 0" class="mess-component__new-mess">{{
+            newNotificationMess > 9 ? '9+' : newNotificationMess
+        }}</span>
+        <a-dropdown placement="bottomRight" :trigger="['click']" @click="handleOnClickMessage">
+            <MessageOutlined style="font-size: 24px; cursor: pointer; margin-right: 20px" />
+            <template #overlay>
+                <a-menu>
+                    <a-menu-item
+                        v-for="(conversation, index) in allConversation"
+                        :key="index"
+                        @click="openMessage(conversation)"
+                    >
+                        <div class="participant">
+                            <a-avatar
+                                v-if="conversation.avatarParticipant"
+                                :src="conversation.avatarParticipant"
+                                size="large"
+                                class="participant-icon"
+                            />
+                            <a-avatar v-else size="large" class="participant-icon">
+                                <template #icon><UserOutlined /></template>
+                            </a-avatar>
+                            <div class="participant-mess">
+                                <h3>
+                                    <b>{{ conversation.emailParticipant }}</b>
+                                </h3>
+                                <p>
+                                    {{
+                                        conversation.lastMessage && conversation.lastMessage.text
+                                            ? conversation.lastMessage.text
+                                            : ''
+                                    }}
+                                </p>
+                                <p
+                                    :style="{
+                                        fontSize: '12px',
+                                        color: 'var(--grey)',
+                                    }"
+                                >
+                                    <i>{{
+                                        convertStringDateToTimestamp(conversation.createdAt)
+                                    }}</i>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </a-menu-item>
-            </a-menu>
-        </template>
-    </a-dropdown>
+                    </a-menu-item>
+                </a-menu>
+            </template>
+        </a-dropdown>
+    </div>
 </template>
 
 <script>
-    import { defineComponent, ref, onMounted } from 'vue';
+    import { defineComponent, ref, onMounted, computed } from 'vue';
     import { useStore } from 'vuex';
     import { MessageOutlined, UserOutlined } from '@ant-design/icons-vue';
     import { getAllConversationResponse } from '../services/method/get';
     import { convertStringDateToTimestamp } from '../lib/index';
+    import { PARTICIPANT } from '../constants';
 
     export default defineComponent({
         name: 'MessComponent',
@@ -59,28 +67,44 @@
             UserOutlined,
         },
         setup() {
-            const allMessage = ref([]);
-
             const store = useStore();
+            const allConversation = ref([]);
+            const isOpenMess = computed(() => store.state.isOpenMess);
+            const newNotificationMess = computed(
+                () => store.state['message'].newNotificationMess.length,
+            );
+            const currentConversationId = computed(
+                () => store.state['message'].currentConversationId,
+            );
 
             const getAllConversation = async () => {
                 const res = await getAllConversationResponse();
                 if (res.status) {
-                    allMessage.value = res.data;
+                    allConversation.value = res.data;
                 }
             };
-
             const handleOnClickMessage = () => {
                 getAllConversation();
+                if (newNotificationMess.value > 0) {
+                    store.commit('message/SET_REMOVE_NEW_NOTIFICATION_MESS');
+                }
             };
-
-            const openMessage = currentConversation => {
-                const dataConversation = {
+            const openMessage = async currentConversation => {
+                if (isOpenMess.value && currentConversation._id === currentConversationId.value) {
+                    return;
+                }
+                store.commit('message/SET_CURRENT_PARTICIPANT', {
                     conversationId: currentConversation._id,
-                    emailParticipant: currentConversation.emailParticipant,
-                    avatarParticipant: currentConversation.avatarParticipant,
-                };
-                store.commit('OPEN_MESS', dataConversation);
+                    participant: {
+                        id: PARTICIPANT,
+                        name: currentConversation.emailParticipant,
+                        imageUrl: currentConversation.avatarParticipant
+                            ? currentConversation.avatarParticipant
+                            : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__480.png',
+                    },
+                });
+                await store.dispatch('message/GET_MESSAGE_LIST_BY_CONVERSATION_ID');
+                store.commit('SET_OPEN_MESS');
             };
 
             onMounted(() => {
@@ -88,7 +112,8 @@
             });
 
             return {
-                allMessage,
+                allConversation,
+                newNotificationMess,
                 openMessage,
                 convertStringDateToTimestamp,
                 handleOnClickMessage,
@@ -98,6 +123,26 @@
 </script>
 
 <style scoped lang="scss">
+    .mess-component {
+        display: flex;
+        position: relative;
+
+        &__new-mess {
+            font-size: 14px;
+            border-radius: 50%;
+            padding: 2px;
+            background-color: red;
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            top: -8px;
+            left: 15px;
+            color: #fff;
+            line-height: 20px;
+            text-align: center;
+        }
+    }
+
     .participant {
         display: flex;
         align-items: center;

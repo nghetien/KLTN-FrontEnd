@@ -11,6 +11,7 @@ import {
     PROBLEM_URL,
     CONVERSATION_URL,
     MESSAGE_URL,
+    NOTIFICATION_URL,
 } from '../api_url';
 
 /// info user
@@ -184,6 +185,22 @@ export const getAllMessageByConversationIdResponse = async conversationId => {
         const res = await axios({
             method: GET,
             url: `${API_DOMAIN}${MESSAGE_URL}/${conversationId}`,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// notification
+export const getAllNotificationResponse = async () => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${NOTIFICATION_URL}`,
             headers: {
                 token: GET_ACCESS_TOKEN(),
             },

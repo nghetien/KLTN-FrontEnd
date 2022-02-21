@@ -1,9 +1,8 @@
 import { useCookies } from 'vue3-cookies';
 import MD5 from 'sha256';
 import { loginGoogleResponse, loginResponse } from '../../services/method/post';
-import { EMAIL, PASSWORD, REMEMBER } from '../../constants';
+import { EMAIL, PASSWORD, REMEMBER, ACCESS_TOKEN } from '../../constants';
 import { logoutResponse } from '../../services/method/delete';
-import { ACCESS_TOKEN } from '../../constants/keys';
 
 const { cookies } = useCookies();
 
@@ -53,8 +52,8 @@ export const authModules = {
             if (res.status) {
                 commit('SET_AUTH_USER', '', { root: true });
                 commit('SET_USER_INFO', {}, { root: true });
-                commit('CLOSE_MESS', {}, { root: true });
-                commit('CLEAR_CURRENT_IO', {}, { root: true });
+                commit('SET_CLOSE_MESS', {}, { root: true });
+                commit('SET_CLEAR_CURRENT_IO', {}, { root: true });
             }
             return res;
         },

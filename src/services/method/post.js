@@ -11,6 +11,7 @@ import {
     FOLLOW_URL,
     PROBLEM_URL,
     MESSAGE_URL,
+    NOTIFICATION_URL,
 } from '../api_url';
 
 /// Auth
@@ -156,6 +157,22 @@ export const createNewMessageByConversationIdResponse = async (conversationId, d
             method: POST,
             url: `${API_DOMAIN}${MESSAGE_URL}/${conversationId}`,
             data: data,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Notification
+export const checkNotificationResponse = async notificationId => {
+    try {
+        const res = await axios({
+            method: POST,
+            url: `${API_DOMAIN}${NOTIFICATION_URL}/${notificationId}`,
             headers: {
                 token: GET_ACCESS_TOKEN(),
             },

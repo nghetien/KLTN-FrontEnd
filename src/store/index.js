@@ -3,8 +3,9 @@ import { io } from 'socket.io-client';
 
 import { authModules } from './modules/auth';
 import { userModules } from './modules/user';
+import { messageModules } from './modules/message';
+import { notificationModules } from './modules/notification';
 import { ADD_USER, STUDENT } from '../constants';
-import { postsModules } from './modules/posts';
 import { API_DOMAIN } from '../services/config';
 
 export default createStore({
@@ -21,9 +22,8 @@ export default createStore({
             majorCode: '',
             status: true,
         },
-        isOpenMess: false,
-        dataMessOpened: {},
         currentIO: null,
+        isOpenMess: false,
     },
     mutations: {
         SET_AUTH_USER(state, newAccessToken) {
@@ -41,20 +41,22 @@ export default createStore({
                 majorCode: newUserInfo.major_code || '',
                 status: newUserInfo.status || true,
             };
-            if (!state.currentIO && newUserInfo.email) {
+            this.commit('SET_CURRENT_IO', state.userInfo.email);
+        },
+        SET_OPEN_MESS(state) {
+            state.isOpenMess = true;
+        },
+        SET_CLOSE_MESS(state) {
+            state.isOpenMess = false;
+        },
+        SET_CURRENT_IO(state, email) {
+            if (!state.currentIO && email) {
                 state.currentIO = io(API_DOMAIN, { transports: ['websocket'] });
-                state.currentIO.emit(ADD_USER, newUserInfo.email);
+                state.currentIO.emit(ADD_USER, email);
+                this.dispatch('message/SETUP_LISTEN_SOCKET');
             }
         },
-        OPEN_MESS(state, dataConversation) {
-            state.isOpenMess = true;
-            state.dataMessOpened = dataConversation;
-        },
-        CLOSE_MESS(state) {
-            state.isOpenMess = false;
-            state.dataMessOpened = {};
-        },
-        CLEAR_CURRENT_IO(state) {
+        SET_CLEAR_CURRENT_IO(state) {
             state.currentIO.disconnect(true);
             state.currentIO = null;
         },
@@ -63,6 +65,7 @@ export default createStore({
     modules: {
         auth: authModules,
         user: userModules,
-        posts: postsModules,
+        message: messageModules,
+        notification: notificationModules,
     },
 });

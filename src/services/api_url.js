@@ -19,3 +19,5 @@ export const FOLLOW_URL = '/api/follow';
 export const MESSAGE_URL = '/api/message';
 /// CONVERSATION
 export const CONVERSATION_URL = '/api/conversation';
+/// NOTIFICATION
+export const NOTIFICATION_URL = '/api/notification';

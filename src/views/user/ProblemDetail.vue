@@ -73,6 +73,9 @@
                         </div>
                     </div>
                 </div>
+                <h2 style="font-size: 36px; padding: 20px 15px; font-weight: 600">
+                    {{ problemDetail.nameProblem }}
+                </h2>
                 <div class="post-detail__view-show ql-snow">
                     <div
                         class="ql-editor"
@@ -330,7 +333,7 @@
         }
 
         &__info {
-            margin-top: 90px;
+            margin-top: 68px;
             width: 100px;
             display: flex;
             flex-direction: column;
@@ -359,7 +362,7 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 40px;
+                margin-bottom: 10px;
             }
 
             &-user {

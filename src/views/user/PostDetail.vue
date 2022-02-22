@@ -84,6 +84,7 @@
                     <Comment
                         @changeCountComment="changeCountComment($event)"
                         :idObject="route.params.idPost"
+                        :emailOwner="postDetail.email"
                         :type="POST"
                     />
                 </div>

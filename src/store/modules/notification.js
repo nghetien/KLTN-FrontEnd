@@ -1,4 +1,5 @@
 import { getAllNotificationResponse } from '../../services/method/get';
+import { GET_NOTIFICATION } from '../../constants';
 
 export const notificationModules = {
     namespaced: true,
@@ -27,6 +28,11 @@ export const notificationModules = {
                 commit('SET_NOTIFICATION_LIST', res.data.allNotification);
                 commit('SET_NOTIFICATION', res.data.newNotification);
             }
+        },
+        async SETUP_LISTEN_SOCKET_NOTIFICATION({ rootState, commit }) {
+            rootState.currentIO.on(GET_NOTIFICATION, () => {
+                commit('SET_NEW_NOTIFICATION', 1);
+            });
         },
     },
     getters: {},

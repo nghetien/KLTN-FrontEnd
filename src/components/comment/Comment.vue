@@ -103,6 +103,7 @@
     import { editCommentResponse } from '../../services/method/put';
     import { deleteCommentResponse } from '../../services/method/delete';
     import { message, Modal } from 'ant-design-vue';
+    import { SEND_NOTIFICATION } from '../../constants';
 
     export default defineComponent({
         name: 'Comment',
@@ -115,6 +116,10 @@
                 type: String,
                 default: '',
             },
+            emailOwner: {
+                type: String,
+                default: '',
+            },
             type: {
                 type: String,
                 default: '',
@@ -122,13 +127,13 @@
         },
         emits: ['changeCountComment'],
         setup(props, { emit }) {
+            const store = useStore();
             const comments = ref([]);
             const isEditComments = ref([]);
             const submitting = ref(false);
             const submittingEdit = ref(false);
             const content = ref('');
             const editContent = ref('');
-            const store = useStore();
 
             const loadComment = async () => {
                 const res = await getCommentByIdResponse(props.idObject, props.type);
@@ -155,6 +160,11 @@
                     await loadComment();
                     emit('changeCountComment', 1);
                     content.value = '';
+                    if (store.state.listUserOnline.includes(props.emailOwner)) {
+                        store.state.currentIO.emit(SEND_NOTIFICATION, {
+                            emailReceiver: props.emailOwner,
+                        });
+                    }
                 }
                 submitting.value = false;
             };

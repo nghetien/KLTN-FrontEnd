@@ -6,7 +6,7 @@
         />
         <a-drawer
             v-model:visible="visible"
-            :title="`Thông báo ${newNotification === 0 ? '' : newNotification}`"
+            :title="`Thông báo (${newNotification === 0 ? '' : newNotification})`"
             placement="left"
         >
             <div
@@ -19,7 +19,7 @@
                 <span style="font-weight: 500; color: var(--primary); margin-right: 5px">
                     {{ notification.emailSender }}
                 </span>
-                <span>{{ notificationType(notification.type) }}</span>
+                <span>{{ notificationType(notification) }}</span>
             </div>
         </a-drawer>
         <span v-if="newNotification > 0" class="notification-component__new-notification">{{
@@ -42,6 +42,7 @@
     } from '../constants';
     import { useRouter } from 'vue-router';
     import { checkNotificationResponse } from '../services/method/post';
+    import { convertStringDateToTimestamp } from '../lib/index';
 
     export default defineComponent({
         name: 'BellComponent',
@@ -56,22 +57,25 @@
             const notificationList = computed(() => store.state['notification'].notificationList);
             const newNotification = computed(() => store.state['notification'].newNotification);
 
-            const notificationType = type => {
+            const notificationType = notification => {
+                const type = notification.type;
+                let text;
                 if (type === NOTIFICATION_NEW_POST) {
-                    return 'đã đăng một bài viết mới.';
+                    text = 'đã đăng một bài viết mới';
                 } else if (type === NOTIFICATION_NEW_PROBLEM) {
-                    return 'đã đặt một câu hỏi mới.';
+                    text = 'đã đặt một câu hỏi mới';
                 } else if (type === NOTIFICATION_COMMENT_POST) {
-                    return 'đã bình luận về bài viết mà bạn quan tâm.';
+                    text = 'đã bình luận về bài viết mà bạn quan tâm';
                 } else if (type === NOTIFICATION_COMMENT_PROBLEM) {
-                    return 'đã bình luận về câu hỏi mà bạn quan tâm.';
+                    text = 'đã bình luận về câu hỏi mà bạn quan tâm';
                 } else if (type === NOTIFICATION_YOUR_POST) {
-                    return 'đã bình luận về bài viết của bạn.';
+                    text = 'đã bình luận về bài viết của bạn';
                 } else if (type === NOTIFICATION_YOUR_PROBLEM) {
-                    return 'đã bình luận về câu hỏi của bạn.';
+                    text = 'đã bình luận về câu hỏi của bạn';
                 } else {
-                    return '';
+                    text = '';
                 }
+                return `${text} - ${convertStringDateToTimestamp(notification.createdAt)}`;
             };
             const showDrawer = () => {
                 visible.value = true;

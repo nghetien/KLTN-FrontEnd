@@ -21,3 +21,5 @@ export const MESSAGE_URL = '/api/message';
 export const CONVERSATION_URL = '/api/conversation';
 /// NOTIFICATION
 export const NOTIFICATION_URL = '/api/notification';
+/// NOTIFICATION MESSAGE
+export const NOTIFICATION_MESSAGE_URL = '/api/notification-message';

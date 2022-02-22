@@ -91,6 +91,7 @@
                 <div class="post-detail__comment">
                     <Comment
                         @changeCountComment="changeCountComment($event)"
+                        :emailOwner="problemDetail.email"
                         :idObject="route.params.idProblem"
                         :type="PROBLEM"
                     />

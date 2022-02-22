@@ -27,11 +27,7 @@
                                     <b>{{ conversation.emailParticipant }}</b>
                                 </h3>
                                 <p>
-                                    {{
-                                        conversation.lastMessage && conversation.lastMessage.text
-                                            ? conversation.lastMessage.text
-                                            : ''
-                                    }}
+                                    {{ renderLastMessage(conversation.lastMessage) }}
                                 </p>
                                 <p
                                     :style="{
@@ -44,6 +40,10 @@
                                     }}</i>
                                 </p>
                             </div>
+                            <div
+                                v-if="checkUserOnline(conversation.lastMessage)"
+                                class="participant-online"
+                            ></div>
                         </div>
                     </a-menu-item>
                 </a-menu>
@@ -58,7 +58,7 @@
     import { MessageOutlined, UserOutlined } from '@ant-design/icons-vue';
     import { getAllConversationResponse } from '../services/method/get';
     import { convertStringDateToTimestamp } from '../lib/index';
-    import { PARTICIPANT } from '../constants';
+    import { MESSAGE_DELETED, PARTICIPANT, SYSTEM } from '../constants';
 
     export default defineComponent({
         name: 'MessComponent',
@@ -86,7 +86,10 @@
             const handleOnClickMessage = () => {
                 getAllConversation();
                 if (newNotificationMess.value > 0) {
+                    store.dispatch('message/REMOVE_ALL_NOTIFICATION');
                     store.commit('message/SET_REMOVE_NEW_NOTIFICATION_MESS');
+                } else if (newNotificationMess.value === 0) {
+                    store.commit('message/SET_CLICK_NOTIFICATION');
                 }
             };
             const openMessage = async currentConversation => {
@@ -106,6 +109,21 @@
                 await store.dispatch('message/GET_MESSAGE_LIST_BY_CONVERSATION_ID');
                 store.commit('SET_OPEN_MESS');
             };
+            const renderLastMessage = lastMessage => {
+                if (lastMessage && lastMessage.type && lastMessage.text) {
+                    if (lastMessage.type === SYSTEM) {
+                        return MESSAGE_DELETED;
+                    }
+                    return lastMessage.text;
+                }
+                return '';
+            };
+            const checkUserOnline = lastMessage => {
+                if (lastMessage && lastMessage.sender) {
+                    return store.state.listUserOnline.includes(lastMessage.sender);
+                }
+                return false;
+            };
 
             onMounted(() => {
                 getAllConversation();
@@ -117,6 +135,8 @@
                 openMessage,
                 convertStringDateToTimestamp,
                 handleOnClickMessage,
+                renderLastMessage,
+                checkUserOnline,
             };
         },
     });
@@ -155,6 +175,17 @@
             height: 60px;
             width: 60px;
             line-height: 60px;
+            position: relative;
+        }
+
+        &-online {
+            position: absolute;
+            top: 9px;
+            left: 15px;
+            height: 15px;
+            width: 15px;
+            border-radius: 50%;
+            background-color: var(--green);
         }
     }
 </style>

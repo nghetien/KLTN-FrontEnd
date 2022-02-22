@@ -12,6 +12,7 @@ import {
     CONVERSATION_URL,
     MESSAGE_URL,
     NOTIFICATION_URL,
+    NOTIFICATION_MESSAGE_URL,
 } from '../api_url';
 
 /// info user
@@ -201,6 +202,20 @@ export const getAllNotificationResponse = async () => {
         const res = await axios({
             method: GET,
             url: `${API_DOMAIN}${NOTIFICATION_URL}`,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+export const getAllNotificationMessageResponse = async () => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${NOTIFICATION_MESSAGE_URL}`,
             headers: {
                 token: GET_ACCESS_TOKEN(),
             },

@@ -12,9 +12,15 @@ import {
     GET_DELETE_MESSAGE,
 } from '../../constants';
 import { convertStringDateToTimestamp } from '../../lib/convertTimestamp';
-import { createNewMessageByConversationIdResponse } from '../../services/method/post';
+import {
+    checkNotificationMessageResponse,
+    createNewMessageByConversationIdResponse,
+} from '../../services/method/post';
 import { editMessageResponse } from '../../services/method/put';
-import { getAllMessageByConversationIdResponse } from '../../services/method/get';
+import {
+    getAllMessageByConversationIdResponse,
+    getAllNotificationMessageResponse,
+} from '../../services/method/get';
 import { deleteMessageResponse } from '../../services/method/delete';
 
 export const messageModules = {
@@ -31,6 +37,7 @@ export const messageModules = {
         ],
         messageList: [],
         newNotificationMess: [],
+        isClickMessage: false,
     }),
     mutations: {
         SET_CURRENT_PARTICIPANT(state, { conversationId, participant }) {
@@ -82,6 +89,9 @@ export const messageModules = {
             if (!findMess) {
                 state.newNotificationMess.push(dataMessage);
             }
+        },
+        SET_CLICK_NOTIFICATION(state) {
+            state.isClickMessage = true;
         },
     },
     actions: {
@@ -155,6 +165,14 @@ export const messageModules = {
                 commit('SET_MESSAGE_LIST', dataMessageList);
             }
         },
+        async GET_INIT_NEW_NOTIFICATION_MESSAGE({ commit }) {
+            const res = await getAllNotificationMessageResponse();
+            if (res.status) {
+                for (const item of res.data) {
+                    commit('SET_ADD_NOTIFICATION_MESS', item);
+                }
+            }
+        },
         async SEND_MESSAGE({ rootState, state, commit, getters }, { text, type, index }) {
             const res = await createNewMessageByConversationIdResponse(
                 state.currentConversationId,
@@ -179,14 +197,21 @@ export const messageModules = {
                         },
                     },
                 });
-                rootState.currentIO.emit(SEND_MESSAGE, {
-                    emailSender: rootState.userInfo.email,
-                    emailReceiver: getters.GET_CURRENT_EMAIL_PARTICIPANT,
-                    text,
-                    type,
-                    createdAt: res.data.createdAt,
-                    messageId: res.data._id.toString(),
-                });
+                if (rootState.listUserOnline.includes(getters.GET_CURRENT_EMAIL_PARTICIPANT)) {
+                    rootState.currentIO.emit(SEND_MESSAGE, {
+                        emailSender: rootState.userInfo.email,
+                        emailReceiver: getters.GET_CURRENT_EMAIL_PARTICIPANT,
+                        text,
+                        type,
+                        createdAt: res.data.createdAt,
+                        messageId: res.data._id.toString(),
+                    });
+                } else {
+                    await checkNotificationMessageResponse('', {
+                        email: rootState.userInfo.email,
+                        emailReceiver: getters.GET_CURRENT_EMAIL_PARTICIPANT,
+                    });
+                }
             } else {
                 commit('SET_REMOVE_MESSAGE', index);
             }
@@ -234,6 +259,17 @@ export const messageModules = {
                 dataReplace: message,
             });
         },
+        async REMOVE_ALL_NOTIFICATION({ rootState, state, commit }) {
+            if (!state.isClickMessage) {
+                commit('SET_CLICK_NOTIFICATION');
+                for (const item of state.newNotificationMess) {
+                    await checkNotificationMessageResponse('', {
+                        email: rootState.userInfo.email,
+                        idNotification: item._id.toString(),
+                    });
+                }
+            }
+        },
     },
     getters: {
         GET_CURRENT_PARTICIPANT(state) {
@@ -244,6 +280,9 @@ export const messageModules = {
         },
         GET_CURRENT_EMAIL_PARTICIPANT(state) {
             return state.currentParticipant[0].name;
+        },
+        GET_COUNT_NOTIFICATION_MESSAGE(state) {
+            return state.newNotificationMess.length;
         },
     },
 };

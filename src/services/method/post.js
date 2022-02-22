@@ -12,6 +12,7 @@ import {
     PROBLEM_URL,
     MESSAGE_URL,
     NOTIFICATION_URL,
+    NOTIFICATION_MESSAGE_URL,
 } from '../api_url';
 
 /// Auth
@@ -173,6 +174,22 @@ export const checkNotificationResponse = async notificationId => {
         const res = await axios({
             method: POST,
             url: `${API_DOMAIN}${NOTIFICATION_URL}/${notificationId}`,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+/// Notification
+export const checkNotificationMessageResponse = async (notificationId = '', data) => {
+    try {
+        const res = await axios({
+            method: POST,
+            url: `${API_DOMAIN}${NOTIFICATION_MESSAGE_URL}/${notificationId}`,
+            data: data,
             headers: {
                 token: GET_ACCESS_TOKEN(),
             },

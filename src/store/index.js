@@ -5,7 +5,7 @@ import { authModules } from './modules/auth';
 import { userModules } from './modules/user';
 import { messageModules } from './modules/message';
 import { notificationModules } from './modules/notification';
-import { ADD_USER, STUDENT } from '../constants';
+import { ADD_USER, GET_USER, STUDENT } from '../constants';
 import { API_DOMAIN } from '../services/config';
 
 export default createStore({
@@ -24,6 +24,7 @@ export default createStore({
         },
         currentIO: null,
         isOpenMess: false,
+        listUserOnline: [],
     },
     mutations: {
         SET_AUTH_USER(state, newAccessToken) {
@@ -53,12 +54,23 @@ export default createStore({
             if (!state.currentIO && email) {
                 state.currentIO = io(API_DOMAIN, { transports: ['websocket'] });
                 state.currentIO.emit(ADD_USER, email);
+                state.currentIO.on(GET_USER, users => {
+                    this.commit(
+                        'SET_LIST_USER_ONLINE',
+                        users.map(item => item.email),
+                    );
+                });
+                this.dispatch('message/GET_INIT_NEW_NOTIFICATION_MESSAGE');
                 this.dispatch('message/SETUP_LISTEN_SOCKET');
+                this.dispatch('notification/SETUP_LISTEN_SOCKET_NOTIFICATION');
             }
         },
         SET_CLEAR_CURRENT_IO(state) {
             state.currentIO.disconnect(true);
             state.currentIO = null;
+        },
+        SET_LIST_USER_ONLINE(state, listUser) {
+            state.listUserOnline = listUser;
         },
     },
     actions: {},

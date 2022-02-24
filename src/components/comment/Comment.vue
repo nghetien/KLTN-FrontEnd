@@ -21,7 +21,12 @@
                         <span @click="deleteComment(index)">Xóa</span>
                     </template>
                     <template #avatar>
-                        <a-avatar v-if="item.avatar" :src="item.avatar" :alt="item.email" />
+                        <a-avatar
+                            v-if="item.avatar"
+                            :src="item.avatar"
+                            :alt="item.email"
+                            referrerpolicy="no-referrer"
+                        />
                         <a-avatar v-else>
                             <template #icon><UserOutlined /></template>
                         </a-avatar>
@@ -160,11 +165,30 @@
                     await loadComment();
                     emit('changeCountComment', 1);
                     content.value = '';
-                    if (store.state.listUserOnline.includes(props.emailOwner)) {
+                    if (
+                        store.state.listUserOnline.includes(props.emailOwner) &&
+                        store.state.userInfo.email !== props.emailOwner
+                    ) {
                         store.state.currentIO.emit(SEND_NOTIFICATION, {
                             emailReceiver: props.emailOwner,
                         });
                     }
+                    const listUserComment = [];
+                    comments.value.forEach(item => {
+                        if (
+                            item &&
+                            item.email &&
+                            store.state.listUserOnline.includes(item.email) &&
+                            store.state.userInfo.email !== item.email
+                        ) {
+                            if (!listUserComment.includes(item.email)) {
+                                listUserComment.push(item.email);
+                                store.state.currentIO.emit(SEND_NOTIFICATION, {
+                                    emailReceiver: item.email,
+                                });
+                            }
+                        }
+                    });
                 }
                 submitting.value = false;
             };

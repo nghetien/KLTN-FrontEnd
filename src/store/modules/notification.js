@@ -1,5 +1,6 @@
 import { getAllNotificationResponse } from '../../services/method/get';
 import { GET_NOTIFICATION } from '../../constants';
+import { notification } from 'ant-design-vue';
 
 export const notificationModules = {
     namespaced: true,
@@ -32,6 +33,11 @@ export const notificationModules = {
         async SETUP_LISTEN_SOCKET_NOTIFICATION({ rootState, commit }) {
             rootState.currentIO.on(GET_NOTIFICATION, () => {
                 commit('SET_NEW_NOTIFICATION', 1);
+                notification['info']({
+                    message: 'Thông báo',
+                    description: `Bạn nhận được một thông báo mới`,
+                    placement: 'bottomRight',
+                });
             });
         },
     },

@@ -18,6 +18,7 @@
                                 :src="conversation.avatarParticipant"
                                 size="large"
                                 class="participant-icon"
+                                referrerpolicy="no-referrer"
                             />
                             <a-avatar v-else size="large" class="participant-icon">
                                 <template #icon><UserOutlined /></template>
@@ -41,7 +42,7 @@
                                 </p>
                             </div>
                             <div
-                                v-if="checkUserOnline(conversation.lastMessage)"
+                                v-if="checkUserOnline(conversation.emailParticipant)"
                                 class="participant-online"
                             ></div>
                         </div>
@@ -118,9 +119,9 @@
                 }
                 return '';
             };
-            const checkUserOnline = lastMessage => {
-                if (lastMessage && lastMessage.sender) {
-                    return store.state.listUserOnline.includes(lastMessage.sender);
+            const checkUserOnline = emailParticipant => {
+                if (emailParticipant) {
+                    return store.state.listUserOnline.includes(emailParticipant);
                 }
                 return false;
             };

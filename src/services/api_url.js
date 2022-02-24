@@ -23,3 +23,7 @@ export const CONVERSATION_URL = '/api/conversation';
 export const NOTIFICATION_URL = '/api/notification';
 /// NOTIFICATION MESSAGE
 export const NOTIFICATION_MESSAGE_URL = '/api/notification-message';
+/// SEARCH
+export const SEARCH_URL = '/api/search';
+/// UPLOAD
+export const UPLOAD_URL = '/api/upload';

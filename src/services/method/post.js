@@ -13,6 +13,7 @@ import {
     MESSAGE_URL,
     NOTIFICATION_URL,
     NOTIFICATION_MESSAGE_URL,
+    UPLOAD_URL,
 } from '../api_url';
 
 /// Auth
@@ -192,6 +193,24 @@ export const checkNotificationMessageResponse = async (notificationId = '', data
             data: data,
             headers: {
                 token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Upload
+export const uploadResponse = async formData => {
+    try {
+        const res = await axios({
+            method: POST,
+            url: `${API_DOMAIN}${UPLOAD_URL}`,
+            data: formData,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+                'Content-Type': 'multipart/form-data',
             },
         });
         return CONFIG_DATA_RESPONSE(res);

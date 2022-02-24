@@ -1,16 +1,28 @@
 <template>
-    <div class="recommend-item">
-        <h3 class="recommend-item-title">Tìm kiếm file và duyệt file trong Nvim</h3>
+    <router-link
+        :to="`/problem/${problem._id.toString()}`"
+        class="recommend-item"
+        @click="goToDetail"
+    >
+        <h3 class="recommend-item-title">{{ problem.nameProblem ? problem.nameProblem : '' }}</h3>
         <div class="more-info">
-            <div class="more-info-item"><like-outlined /> 2.2K</div>
-            <div class="more-info-item"><dislike-outlined /> 2.2K</div>
-            <div class="more-info-item"><eye-outlined /> 2.2K</div>
-            <div class="more-info-item"><tag-outlined /> 100</div>
-            <div class="more-info-item"><message-outlined /> 200</div>
+            <div class="more-info-item">
+                <like-outlined /> {{ problem.like ? problem.like : 0 }}
+            </div>
+            <div class="more-info-item">
+                <dislike-outlined /> {{ problem.dislike ? problem.dislike : 0 }}
+            </div>
+            <div class="more-info-item"><eye-outlined /> {{ problem.view ? problem.view : 0 }}</div>
+            <div class="more-info-item">
+                <tag-outlined /> {{ problem.tags ? problem.tags.length : 0 }}
+            </div>
+            <div class="more-info-item">
+                <message-outlined /> {{ problem.comment ? problem.comment : 0 }}
+            </div>
         </div>
-        <p class="recommend-item__name">Nguyễn Văn Đạt</p>
+        <p class="recommend-item__name">{{ problem.email ? problem.email : '' }}</p>
         <a-divider style="margin: 10px 0 !important" />
-    </div>
+    </router-link>
 </template>
 
 <script>
@@ -22,6 +34,7 @@
         MessageOutlined,
         TagOutlined,
     } from '@ant-design/icons-vue';
+    import { useRouter } from 'vue-router';
 
     export default defineComponent({
         name: 'RecommendProblem',
@@ -31,6 +44,23 @@
             MessageOutlined,
             DislikeOutlined,
             LikeOutlined,
+        },
+        props: {
+            problem: {
+                type: Object,
+                default: () => ({}),
+            },
+        },
+        setup(props) {
+            const router = useRouter();
+            const goToDetail = () => {
+                router.push(`/problem/${props.problem._id.toString()}`);
+                window.scrollTo(0, 0);
+            };
+
+            return {
+                goToDetail,
+            };
         },
     });
 </script>

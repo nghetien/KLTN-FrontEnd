@@ -13,6 +13,7 @@ import {
     MESSAGE_URL,
     NOTIFICATION_URL,
     NOTIFICATION_MESSAGE_URL,
+    SEARCH_URL,
 } from '../api_url';
 
 /// info user
@@ -47,6 +48,21 @@ export const getAllPostResponse = async (params = {}) => {
         return ERROR_DATA;
     }
 };
+export const getMaxPagePostResponse = async (params = {}) => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${POST_URL}/count-max-page`,
+            params,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
 export const getPostByIdResponse = async idPost => {
     try {
         const res = await axios({
@@ -65,6 +81,21 @@ export const getAllProblemResponse = async (params = {}) => {
         const res = await axios({
             method: GET,
             url: `${API_DOMAIN}${PROBLEM_URL}`,
+            params,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+export const getMaxPageProblemResponse = async (params = {}) => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${PROBLEM_URL}/count-max-page`,
             params,
             headers: {
                 token: GET_ACCESS_TOKEN(),
@@ -216,6 +247,23 @@ export const getAllNotificationMessageResponse = async () => {
         const res = await axios({
             method: GET,
             url: `${API_DOMAIN}${NOTIFICATION_MESSAGE_URL}`,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Search
+export const searchResponse = async (params = {}) => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${SEARCH_URL}`,
+            params,
             headers: {
                 token: GET_ACCESS_TOKEN(),
             },

@@ -155,7 +155,7 @@
     import { MathLiveComponent } from '../../components';
     import { renderKatex, markdownItRender } from '../../lib/index';
     import { PUBLIC, PRIVATE } from '../../constants/index';
-    import { createPostResponse } from '../../services/method/post';
+    import { createPostResponse, uploadResponse } from '../../services/method/post';
     import { message } from 'ant-design-vue';
     import { useRouter } from 'vue-router';
 
@@ -225,7 +225,11 @@
                         message.success({ content: 'Đăng bài viết thành công!', key, duration: 2 });
                         await router.push({ name: 'Home' });
                     } else {
-                        message.error('Đăng bài viết thất bại');
+                        message.error({
+                            content: 'Đăng bài viết thất bại, Tiêu đề bài viết bị trùng lặp',
+                            key,
+                            duration: 2,
+                        });
                     }
                 } else {
                     message.warning('Yêu cầu nhập đủ thông tin Tiêu đề và Nội dung thu gọn');
@@ -277,14 +281,14 @@
                     placeholder: 'Nhập nội dung',
                     modules: {
                         imageUploader: {
-                            upload: () => {
-                                return new Promise(resolve => {
-                                    setTimeout(() => {
-                                        resolve(
-                                            'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/JavaScript-logo.png/480px-JavaScript-logo.png',
-                                        );
-                                    }, 3500);
-                                });
+                            upload: async file => {
+                                const formData = new FormData();
+                                formData.append('file', file, file.name);
+                                const res = await uploadResponse(formData);
+                                if (res.status) {
+                                    return res.data;
+                                }
+                                return '';
                             },
                         },
                         table: true,

@@ -30,6 +30,14 @@
                 :key="index"
                 :problem="problem"
             />
+            <div class="content-view__pagination">
+                <a-pagination
+                    v-model:current="currentPage"
+                    :total="maxPage"
+                    :pageSizeOptions="['10']"
+                    :showSizeChanger="false"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -38,7 +46,7 @@
     import { defineComponent, onMounted, ref, watch } from 'vue';
     import { PreviewProblem } from '../components/index';
     import { EditOutlined } from '@ant-design/icons-vue';
-    import { getAllProblemResponse } from '../services/method/get';
+    import { getAllProblemResponse, getMaxPageProblemResponse } from '../services/method/get';
     export default defineComponent({
         name: 'HomeProblem',
         components: {
@@ -48,19 +56,32 @@
         setup() {
             const allProblem = ref([]);
             const selectedKeys = ref(['new']);
+            const currentPage = ref(1);
+            const maxPage = ref(0);
 
-            onMounted(async () => {
-                const res = await getAllProblemResponse();
+            const getDataProblem = async (query = {}) => {
+                const res = await getAllProblemResponse(query);
                 if (res.status) {
                     allProblem.value = res.data;
                 }
+            };
+
+            const getMaxPageProblem = async (query = {}) => {
+                const res = await getMaxPageProblemResponse(query);
+                if (res.status) {
+                    maxPage.value = res.data;
+                }
+            };
+
+            onMounted(() => {
+                Promise.all([getDataProblem(), getMaxPageProblem()]);
             });
 
-            watch(selectedKeys, async () => {
+            watch(selectedKeys, () => {
                 let dataQuery;
                 if (selectedKeys.value[0] === 'follow') {
                     dataQuery = {
-                        queryFollow: true,
+                        queryUserFollow: true,
                     };
                 } else if (selectedKeys.value[0] === 'correctAnswer') {
                     dataQuery = {
@@ -73,15 +94,34 @@
                 } else {
                     dataQuery = {};
                 }
-                const res = await getAllProblemResponse(dataQuery);
-                if (res.status) {
-                    allProblem.value = res.data;
+                Promise.all([getDataProblem(dataQuery), getMaxPageProblem(dataQuery)]);
+            });
+
+            watch(currentPage, () => {
+                let dataQuery;
+                if (selectedKeys.value[0] === 'follow') {
+                    dataQuery = {
+                        queryUserFollow: true,
+                    };
+                } else if (selectedKeys.value[0] === 'correctAnswer') {
+                    dataQuery = {
+                        isHaveCorrectAnswer: true,
+                    };
+                } else if (selectedKeys.value[0] === 'notCorrectAnswer') {
+                    dataQuery = {
+                        isHaveCorrectAnswer: false,
+                    };
+                } else {
+                    dataQuery = {};
                 }
+                getDataProblem({ ...dataQuery, ...{ pageProblem: currentPage.value - 1 } });
             });
 
             return {
                 allProblem,
                 selectedKeys,
+                currentPage,
+                maxPage,
             };
         },
     });
@@ -104,6 +144,11 @@
                 color: var(--primary);
                 margin-bottom: 20px;
             }
+        }
+
+        &__pagination {
+            padding: 20px 0 30px 0;
+            text-align: center;
         }
     }
 

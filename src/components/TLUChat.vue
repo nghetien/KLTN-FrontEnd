@@ -13,7 +13,7 @@
             :show-close-button="true"
             :show-launcher="true"
             :show-emoji="true"
-            :show-file="false"
+            :show-file="true"
             :show-typing-indicator="showTypingIndicator"
             :show-edition="true"
             :show-deletion="true"
@@ -25,6 +25,23 @@
             @edit="editMessage"
             @remove="removeMessage"
         >
+            <template v-slot:text-message-body="scopedProps">
+                <p class="sc-message--text-content" v-html="scopedProps.messageText"></p>
+                <p
+                    v-if="scopedProps.message.data.meta"
+                    class="sc-message--meta"
+                    :style="{ color: scopedProps.messageColors.color }"
+                >
+                    {{ scopedProps.message.data.meta }}
+                </p>
+                <p
+                    v-if="scopedProps.message.isEdited || scopedProps.message.liked"
+                    class="sc-message--edited"
+                >
+                    <template v-if="scopedProps.message.isEdited">✎</template>
+                    <template v-if="scopedProps.message.liked">👍</template>
+                </p>
+            </template>
         </beautiful-chat>
     </div>
 </template>
@@ -32,6 +49,7 @@
 <script>
     import { defineComponent, ref, computed } from 'vue';
     import { useStore } from 'vuex';
+    import { uploadResponse } from '../services/method/post';
 
     export default defineComponent({
         name: 'TLUChat',
@@ -77,15 +95,37 @@
             const messageStyling = true;
 
             // EVENT
-            const onMessageWasSent = message => {
-                message.data.text = message.data.text ? message.data.text : message.data.emoji;
-                store.commit('message/SET_ADD_MESSAGE', message);
-                const messIndex = messageList.value.length - 1;
-                store.dispatch('message/SEND_MESSAGE', {
-                    text: message.data.text,
-                    type: message.type,
-                    index: messIndex,
-                });
+            const onMessageWasSent = async message => {
+                if (message.type === 'file') {
+                    const uploadingMessage = {
+                        author: 'me',
+                        data: { text: `Uploading: ${message.data.file.name} ...` },
+                        type: 'text',
+                    };
+                    store.commit('message/SET_ADD_MESSAGE', uploadingMessage);
+                    const messIndex = messageList.value.length - 1;
+                    const formData = new FormData();
+                    formData.append('file', message.data.file, message.data.file.name);
+                    const res = await uploadResponse(formData);
+                    if (res.status) {
+                        await store.dispatch('message/SEND_MESSAGE', {
+                            text: res.data,
+                            type: 'text',
+                            index: messIndex,
+                        });
+                    } else {
+                        store.commit('message/SET_REMOVE_MESSAGE', messIndex);
+                    }
+                } else {
+                    message.data.text = message.data.text ? message.data.text : message.data.emoji;
+                    store.commit('message/SET_ADD_MESSAGE', message);
+                    const messIndex = messageList.value.length - 1;
+                    await store.dispatch('message/SEND_MESSAGE', {
+                        text: message.data.text,
+                        type: message.type,
+                        index: messIndex,
+                    });
+                }
             };
             const openChat = () => {
                 isChatOpen.value = true;
@@ -160,5 +200,9 @@
         .sc-message--meta {
             text-align: left;
         }
+    }
+
+    .chatLink.chatLink-url {
+        color: darkorange;
     }
 </style>

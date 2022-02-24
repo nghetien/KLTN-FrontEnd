@@ -45,6 +45,7 @@
                             :src="problemDetail.avatar"
                             size="large"
                             class="preview-post__avatar"
+                            referrerpolicy="no-referrer"
                         />
                         <a-avatar v-else size="large" class="preview-post__avatar">
                             <template #icon>
@@ -98,11 +99,12 @@
                 </div>
             </div>
             <div class="post-detail__recommend">
-                <h2 class="post-detail__recommend-title">CÂU HỎI MỚI NHẤT</h2>
-                <RecommendPost />
-                <RecommendPost />
-                <RecommendPost />
-                <RecommendPost />
+                <h2 class="post-detail__recommend-title">BÀI VIẾT MỚI NHẤT</h2>
+                <RecommendPost
+                    v-for="(post, index) in allRecommendPost"
+                    :key="index"
+                    :post="post"
+                />
             </div>
         </div>
     </div>
@@ -123,6 +125,7 @@
     } from '@ant-design/icons-vue';
     import { RecommendPost, Comment } from '../../components/index';
     import {
+        getAllPostResponse,
         getBookmarkResponse,
         getFollowedResponse,
         getLikeOrDislikeResponse,
@@ -164,7 +167,14 @@
             const isHaveCorrectAnswer = ref(false);
             const isFollow = ref(false);
             const isShowFollow = ref(false);
+            const allRecommendPost = ref([]);
 
+            const getRecommendPost = async () => {
+                const res = await getAllPostResponse();
+                if (res.status) {
+                    allRecommendPost.value = res.data;
+                }
+            };
             const loadDataInit = async () => {
                 const res = await getProblemByIdResponse(route.params.idProblem);
                 if (res.status) {
@@ -245,7 +255,12 @@
             };
 
             onMounted(async () => {
-                await Promise.all([loadDataInit(), loadIsBookmark(), loadLikeOrDislike()]);
+                await Promise.all([
+                    loadDataInit(),
+                    loadIsBookmark(),
+                    loadLikeOrDislike(),
+                    getRecommendPost(),
+                ]);
                 if (store.state.userInfo.email !== problemDetail.value.email) {
                     isShowFollow.value = true;
                     await loadFollowed();
@@ -304,6 +319,7 @@
                 isFollow,
                 isShowFollow,
                 renderContent,
+                allRecommendPost,
                 handleLike,
                 handleDislike,
                 convertTimestamp,

@@ -37,6 +37,7 @@
                             :src="postDetail.avatar"
                             size="large"
                             class="preview-post__avatar"
+                            referrerpolicy="no-referrer"
                         />
                         <a-avatar v-else size="large" class="preview-post__avatar">
                             <template #icon>
@@ -91,10 +92,11 @@
             </div>
             <div class="post-detail__recommend">
                 <h2 class="post-detail__recommend-title">CÂU HỎI MỚI NHẤT</h2>
-                <RecommendProblem />
-                <RecommendProblem />
-                <RecommendProblem />
-                <RecommendProblem />
+                <RecommendProblem
+                    v-for="(problem, index) in allRecommendProblem"
+                    :key="index"
+                    :problem="problem"
+                />
             </div>
         </div>
     </div>
@@ -114,6 +116,7 @@
     } from '@ant-design/icons-vue';
     import { RecommendProblem, Comment } from '../../components/index';
     import {
+        getAllProblemResponse,
         getBookmarkResponse,
         getFollowedResponse,
         getLikeOrDislikeResponse,
@@ -152,6 +155,14 @@
             const countLike = ref(0);
             const isFollow = ref(false);
             const isShowFollow = ref(false);
+            const allRecommendProblem = ref([]);
+
+            const getRecommendProblem = async () => {
+                const res = await getAllProblemResponse();
+                if (res.status) {
+                    allRecommendProblem.value = res.data;
+                }
+            };
 
             const loadDataInit = async () => {
                 const res = await getPostByIdResponse(route.params.idPost);
@@ -231,7 +242,12 @@
             };
 
             onMounted(async () => {
-                await Promise.all([loadDataInit(), loadIsBookmark(), loadLikeOrDislike()]);
+                await Promise.all([
+                    loadDataInit(),
+                    loadIsBookmark(),
+                    loadLikeOrDislike(),
+                    getRecommendProblem(),
+                ]);
                 if (store.state.userInfo.email !== postDetail.value.email) {
                     isShowFollow.value = true;
                     await loadFollowed();
@@ -282,6 +298,7 @@
                 isFollow,
                 isShowFollow,
                 renderContent,
+                allRecommendProblem,
                 handleLike,
                 handleDislike,
                 convertTimestamp,

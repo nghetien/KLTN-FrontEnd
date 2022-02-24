@@ -1,16 +1,22 @@
 <template>
-    <div class="recommend-item">
-        <h3 class="recommend-item-title">Tìm kiếm file và duyệt file trong Nvim</h3>
+    <router-link :to="`/post/${post._id.toString()}`" class="recommend-item" @click="goToDetail">
+        <h3 class="recommend-item-title">{{ post.namePost ? post.namePost : '' }}</h3>
         <div class="more-info">
-            <div class="more-info-item"><like-outlined /> 2.2K</div>
-            <div class="more-info-item"><dislike-outlined /> 2.2K</div>
-            <div class="more-info-item"><eye-outlined /> 2.2K</div>
-            <div class="more-info-item"><tag-outlined /> 100</div>
-            <div class="more-info-item"><message-outlined /> 200</div>
+            <div class="more-info-item"><like-outlined /> {{ post.like ? post.like : 0 }}</div>
+            <div class="more-info-item">
+                <dislike-outlined /> {{ post.dislike ? post.dislike : 0 }}
+            </div>
+            <div class="more-info-item"><eye-outlined /> {{ post.view ? post.view : 0 }}</div>
+            <div class="more-info-item">
+                <tag-outlined /> {{ post.tags ? post.tags.length : 0 }}
+            </div>
+            <div class="more-info-item">
+                <message-outlined /> {{ post.comment ? post.comment : 0 }}
+            </div>
         </div>
-        <p class="recommend-item__name">Nguyễn Văn Đạt</p>
+        <p class="recommend-item__name">{{ post.email ? post.email : '' }}</p>
         <a-divider style="margin: 10px 0 !important" />
-    </div>
+    </router-link>
 </template>
 
 <script>
@@ -22,6 +28,7 @@
         MessageOutlined,
         TagOutlined,
     } from '@ant-design/icons-vue';
+    import { useRouter } from 'vue-router';
 
     export default defineComponent({
         name: 'RecommendPost',
@@ -31,6 +38,23 @@
             MessageOutlined,
             DislikeOutlined,
             LikeOutlined,
+        },
+        props: {
+            post: {
+                type: Object,
+                default: () => ({}),
+            },
+        },
+        setup(props) {
+            const router = useRouter();
+            const goToDetail = () => {
+                router.push(`/post/${props.post._id.toString()}`);
+                window.scrollTo(0, 0);
+            };
+
+            return {
+                goToDetail,
+            };
         },
     });
 </script>

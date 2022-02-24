@@ -6,7 +6,7 @@
         />
         <a-drawer
             v-model:visible="visible"
-            :title="`Thông báo (${newNotification === 0 ? '' : newNotification})`"
+            :title="`Thông báo (${newNotification})`"
             placement="left"
         >
             <div

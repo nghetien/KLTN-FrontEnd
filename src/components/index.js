@@ -8,6 +8,7 @@ import PreviewProblem from './problem/PreviewProblem';
 import TLUChat from './TLUChat';
 import MessComponent from './MessComponent';
 import BellComponent from './BellComponent';
+import SearchBarComponent from './SearchBarComponent';
 
 export {
     TabBar,
@@ -20,4 +21,5 @@ export {
     TLUChat,
     MessComponent,
     BellComponent,
+    SearchBarComponent,
 };

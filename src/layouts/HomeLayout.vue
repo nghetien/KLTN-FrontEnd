@@ -25,12 +25,7 @@
                 </a-menu>
             </div>
             <div class="add-flex-style menu-right-style">
-                <a-input-search
-                    v-model:value="valueSearch"
-                    placeholder="Tìm kiếm"
-                    size="large"
-                    class="input-search"
-                />
+                <SearchBarComponent class="input-search" />
                 <div v-if="checkAccessToken" class="menu-item-right-style">
                     <BellComponent />
                     <MessComponent />
@@ -38,6 +33,7 @@
                         v-if="avatar"
                         :src="avatar"
                         style="margin-right: 8px; flex-shrink: 0"
+                        referrerpolicy="no-referrer"
                     />
                     <a-avatar v-else style="margin-right: 8px; flex-shrink: 0">
                         <template #icon><UserOutlined /></template>
@@ -96,6 +92,7 @@
         UserOutlined,
     } from '@ant-design/icons-vue';
     import { MessComponent, BellComponent } from '../components/index';
+    import { SearchBarComponent } from '../components/index';
 
     export default defineComponent({
         name: 'HomeLayout',
@@ -106,6 +103,7 @@
             SettingOutlined,
             MessComponent,
             BellComponent,
+            SearchBarComponent,
         },
         setup() {
             const store = useStore();
@@ -113,7 +111,6 @@
             const route = useRoute();
 
             const selectedKeys = ref(['home']);
-            const valueSearch = ref('');
 
             watch(selectedKeys, () => {
                 if (selectedKeys.value[0] === 'home') {
@@ -146,7 +143,6 @@
                 checkAccessToken: store.state.accessToken.length !== 0,
                 email: store.state.userInfo.email,
                 avatar: store.state.userInfo.avatar,
-                valueSearch,
                 selectedKeys,
                 handleClickLogo,
             };
@@ -185,6 +181,7 @@
             .input-search {
                 margin: 0 24px;
                 width: 60%;
+                display: flex;
             }
 
             .menu-item-right-style {

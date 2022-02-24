@@ -1,6 +1,12 @@
 <template>
     <router-link :to="`/post/${post._id}`" class="preview-post" @click="goToDetail">
-        <a-avatar v-if="post.avatar" size="large" class="preview-post__avatar" :src="post.avatar" />
+        <a-avatar
+            v-if="post.avatar"
+            size="large"
+            class="preview-post__avatar"
+            :src="post.avatar"
+            referrerpolicy="no-referrer"
+        />
         <a-avatar v-else size="large" class="preview-post__avatar">
             <template #icon>
                 <UserOutlined />

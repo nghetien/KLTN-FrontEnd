@@ -23,13 +23,22 @@
             <div class="content-view-list">
                 <h2 class="content-view-list__title">BÀI VIẾT</h2>
                 <PreviewPost v-for="(post, index) in allPost" :key="index" :post="post" />
+                <div class="content-view__pagination">
+                    <a-pagination
+                        v-model:current="currentPage"
+                        :total="maxPage"
+                        :pageSizeOptions="['10']"
+                        :showSizeChanger="false"
+                    />
+                </div>
             </div>
             <div class="recommend">
                 <h2 class="recommend__title">CÂU HỎI</h2>
-                <RecommendProblem />
-                <RecommendProblem />
-                <RecommendProblem />
-                <RecommendProblem />
+                <RecommendProblem
+                    v-for="(problem, index) in allRecommendProblem"
+                    :key="index"
+                    :problem="problem"
+                />
             </div>
         </div>
     </div>
@@ -39,7 +48,11 @@
     import { EditOutlined } from '@ant-design/icons-vue';
     import { PreviewPost, RecommendProblem } from '../components/index';
     import { defineComponent, onMounted, ref, watch } from 'vue';
-    import { getAllPostResponse } from '../services/method/get';
+    import {
+        getAllPostResponse,
+        getAllProblemResponse,
+        getMaxPagePostResponse,
+    } from '../services/method/get';
 
     export default defineComponent({
         name: 'Home',
@@ -51,31 +64,61 @@
         setup() {
             const allPost = ref([]);
             const selectedKeys = ref(['new']);
+            const currentPage = ref(1);
+            const maxPage = ref(0);
+            const allRecommendProblem = ref([]);
 
-            onMounted(async () => {
-                const res = await getAllPostResponse();
+            const getRecommendProblem = async () => {
+                const res = await getAllProblemResponse();
+                if (res.status) {
+                    allRecommendProblem.value = res.data;
+                }
+            };
+
+            const getDataPost = async (query = {}) => {
+                const res = await getAllPostResponse(query);
                 if (res.status) {
                     allPost.value = res.data;
                 }
+            };
+
+            const getMaxPagePost = async (query = {}) => {
+                const res = await getMaxPagePostResponse(query);
+                if (res.status) {
+                    maxPage.value = res.data;
+                }
+            };
+
+            onMounted(() => {
+                Promise.all([getDataPost(), getMaxPagePost(), getRecommendProblem()]);
             });
 
-            watch(selectedKeys, async () => {
+            watch(selectedKeys, () => {
+                currentPage.value = 1;
                 if (selectedKeys.value[0] === 'follow') {
-                    const res = await getAllPostResponse({ queryFollow: true });
-                    if (res.status) {
-                        allPost.value = res.data;
-                    }
+                    Promise.all([
+                        getDataPost({ queryUserFollow: true }),
+                        getMaxPagePost({ queryUserFollow: true }),
+                    ]);
                 } else {
-                    const res = await getAllPostResponse();
-                    if (res.status) {
-                        allPost.value = res.data;
-                    }
+                    Promise.all([getDataPost(), getMaxPagePost()]);
+                }
+            });
+
+            watch(currentPage, () => {
+                if (selectedKeys.value[0] === 'follow') {
+                    getDataPost({ queryUserFollow: true, pagePost: currentPage.value - 1 });
+                } else {
+                    getDataPost({ pagePost: currentPage.value - 1 });
                 }
             });
 
             return {
                 allPost,
                 selectedKeys,
+                currentPage,
+                maxPage,
+                allRecommendProblem,
             };
         },
     });
@@ -98,6 +141,11 @@
                 color: var(--primary);
                 margin-bottom: 20px;
             }
+        }
+
+        &__pagination {
+            padding: 20px 0 30px 0;
+            text-align: center;
         }
 
         .recommend {

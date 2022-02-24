@@ -1,3 +1,4 @@
+import { notification } from 'ant-design-vue';
 import {
     ME,
     MESSAGE_DELETED,
@@ -113,6 +114,11 @@ export const messageModules = {
                     });
                 } else {
                     commit('SET_ADD_NOTIFICATION_MESS', dataMessage);
+                    notification['info']({
+                        message: 'Tin nhắn',
+                        description: `${dataMessage.emailSender} vừa gửi tin nhắn cho bạn`,
+                        placement: 'bottomLeft',
+                    });
                 }
             });
             rootState.currentIO.on(GET_EDIT_MESSAGE, dataMessage => {

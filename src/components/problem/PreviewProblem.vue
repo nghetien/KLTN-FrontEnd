@@ -5,6 +5,7 @@
             size="large"
             class="preview-problem__avatar"
             :src="problem.avatar"
+            referrerpolicy="no-referrer"
         />
         <a-avatar v-else size="large" class="preview-problem__avatar">
             <template #icon>

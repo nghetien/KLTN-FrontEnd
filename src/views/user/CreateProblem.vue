@@ -199,7 +199,11 @@
                         message.success({ content: 'Đặt câu hỏi thành công!', key, duration: 2 });
                         await router.push({ name: 'HomeProblem' });
                     } else {
-                        message.error('Đặt câu hỏi thất bại');
+                        message.error({
+                            content: 'Đặt câu hỏi thất bại, Tiều đề câu hỏi có sự trùng lặp',
+                            key,
+                            duration: 2,
+                        });
                     }
                 } else {
                     message.warning('Yêu cầu nhập đủ thông tin Tiêu đề và Nội dung thu gọn');

@@ -24,15 +24,15 @@
                 </router-link>
             </div>
             <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
-                <a-menu-item key="profile">
+                <a-menu-item key="profile" @click="handleClickToProfile">
                     <user-outlined />
                     <span>Thông tin cá nhân</span>
                 </a-menu-item>
-                <a-menu-item key="blog">
+                <a-menu-item key="post" @click="handleClickToManagerPost">
                     <read-outlined />
                     <span>Quản lý bài viết</span>
                 </a-menu-item>
-                <a-menu-item key="problem">
+                <a-menu-item key="problem" @click="handleClickToManagerProblem">
                     <question-outlined />
                     <span>Quản lý câu hỏi</span>
                 </a-menu-item>
@@ -55,23 +55,37 @@
                     width: !collapsed ? 'calc(100% - 200px)' : 'calc(100% - 80px)',
                 }"
             >
-                <div style="display: flex; justify-content: flex-start; align-items: center">
-                    <menu-unfold-outlined
-                        v-if="collapsed"
-                        class="trigger"
-                        @click="toggleCollapsed"
-                        style="padding: 0 16px; font-size: 20px"
-                    />
-                    <menu-fold-outlined
-                        v-else
-                        class="trigger"
-                        @click="toggleCollapsed"
-                        style="padding: 0 16px; font-size: 20px"
-                    />
+                <div style="display: flex; flex: 1">
+                    <div style="display: flex; justify-content: flex-start; align-items: center">
+                        <menu-unfold-outlined
+                            v-if="collapsed"
+                            class="trigger"
+                            @click="toggleCollapsed"
+                            style="padding: 0 16px; font-size: 20px"
+                        />
+                        <menu-fold-outlined
+                            v-else
+                            class="trigger"
+                            @click="toggleCollapsed"
+                            style="padding: 0 16px; font-size: 20px"
+                        />
+                    </div>
+
+                    <ManagerSearchBarComponent class="input-search" />
                 </div>
 
-                <div v-if="checkAccessToken">
-                    <a-avatar style="margin-right: 8px">
+                <div v-if="checkAccessToken" class="menu-item-right-style">
+                    <BellComponent />
+                    <MessComponent />
+                    <a-avatar
+                        v-if="avatar"
+                        style="margin-right: 8px"
+                        :src="avatar"
+                        referrerpolicy="no-referrer"
+                    >
+                        <template #icon><UserOutlined /></template>
+                    </a-avatar>
+                    <a-avatar v-else style="margin-right: 8px">
                         <template #icon><UserOutlined /></template>
                     </a-avatar>
                     <a-dropdown>
@@ -115,7 +129,7 @@
                     minHeight: '100vh',
                 }"
             >
-                <router-view />
+                <router-view :key="$route.fullPath" />
             </a-layout-content>
         </a-layout>
     </a-layout>
@@ -133,8 +147,11 @@
         LoginOutlined,
         HomeOutlined,
     } from '@ant-design/icons-vue';
-    import { defineComponent, ref } from 'vue';
+    import { computed, defineComponent, ref, onMounted } from 'vue';
     import { mapActions, useStore } from 'vuex';
+    import { useRouter, useRoute } from 'vue-router';
+    import { MessComponent, BellComponent } from '../components/index';
+    import { ManagerSearchBarComponent } from '../components/index';
 
     export default defineComponent({
         name: 'ManagerLayout',
@@ -148,20 +165,48 @@
             BookOutlined,
             LoginOutlined,
             HomeOutlined,
+            ManagerSearchBarComponent,
+            MessComponent,
+            BellComponent,
         },
         setup() {
+            const router = useRouter();
+            const route = useRoute();
             const store = useStore();
 
             const collapsed = ref(true);
-            const selectedKeys = ref([]);
-            let checkAccessToken = ref(store.state.accessToken.length !== 0);
-            let email = ref(store.state.userInfo.email);
+            const selectedKeys = ref(['profile']);
+            const checkAccessToken = computed(() => store.state.accessToken.length !== 0);
+            const email = computed(() => store.state.userInfo.email);
+            const avatar = computed(() => store.state.userInfo.avatar);
+
+            const handleClickToProfile = () => {
+                router.push(`/manager/profile/${store.state.userInfo.email}`);
+            };
+            const handleClickToManagerPost = () => {
+                router.push(`/manager/post`);
+            };
+            const handleClickToManagerProblem = () => {
+                router.push(`/manager/problem`);
+            };
+
+            onMounted(() => {
+                if (route.path === '/manager/post') {
+                    selectedKeys.value = ['post'];
+                } else if (route.path === '/manager/problem') {
+                    selectedKeys.value = ['problem'];
+                }
+            });
 
             return {
                 checkAccessToken,
+                avatar,
                 email,
                 collapsed,
                 selectedKeys,
+                handleClickToProfile,
+                handleClickToManagerPost,
+                handleClickToManagerProblem,
             };
         },
         methods: {
@@ -178,6 +223,10 @@
 </script>
 
 <style scoped lang="scss">
+    .menu-item-right-style {
+        display: flex;
+        align-items: center;
+    }
     .header-layout-custom {
         position: fixed;
         z-index: 1;
@@ -186,6 +235,14 @@
         display: flex;
         justify-content: space-between;
         transition: all 0.2s;
+
+        .input-search {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: 60%;
+            margin-left: 16px;
+        }
     }
 
     .ant-pro-slider-menu-logo {

@@ -46,18 +46,32 @@ const routes = [
                 name: 'ProblemDetail',
                 component: () => import('../views/user/ProblemDetail'),
             },
+            {
+                path: '/profile/history/:email',
+                name: 'ProfileHistory',
+                component: () => import('../views/user/ProfileHistory'),
+            },
         ],
     },
     {
         path: '/manager',
         name: 'ManagerLayout',
         component: ManagerLayout,
-        redirect: '/manager/profile',
         children: [
             {
-                path: '/manager/profile',
+                path: '/manager/profile/:email',
                 name: 'Profile',
                 component: () => import('../views/user/Profile.vue'),
+            },
+            {
+                path: '/manager/post',
+                name: 'ManagerPost',
+                component: () => import('../views/manager/ManagerPost.vue'),
+            },
+            {
+                path: '/manager/problem',
+                name: 'ManagerProblem',
+                component: () => import('../views/manager/ManagerProblem.vue'),
             },
         ],
     },

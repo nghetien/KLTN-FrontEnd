@@ -69,7 +69,11 @@
             const getMaxPageProblem = async (query = {}) => {
                 const res = await getMaxPageProblemResponse(query);
                 if (res.status) {
-                    maxPage.value = res.data;
+                    if (typeof res.data === 'number') {
+                        maxPage.value = res.data;
+                    } else {
+                        maxPage.value = 0;
+                    }
                 }
             };
 

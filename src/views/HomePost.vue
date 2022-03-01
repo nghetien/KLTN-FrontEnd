@@ -60,7 +60,11 @@
             const getMaxPagePost = async (query = {}) => {
                 const res = await getMaxPagePostResponse(query);
                 if (res.status) {
-                    maxPage.value = res.data;
+                    if (typeof res.data === 'number') {
+                        maxPage.value = res.data;
+                    } else {
+                        maxPage.value = 0;
+                    }
                 }
             };
 

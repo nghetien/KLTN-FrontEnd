@@ -12,4 +12,4 @@ const convertStringDateToTimestamp = string => {
     return convertTimestampToTime(moment(string).unix());
 };
 
-export { convertTimestamp as default, convertStringDateToTimestamp };
+export { convertTimestamp as default, convertStringDateToTimestamp, convertTimestampToTime };

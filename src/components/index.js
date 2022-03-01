@@ -9,6 +9,9 @@ import TLUChat from './TLUChat';
 import MessComponent from './MessComponent';
 import BellComponent from './BellComponent';
 import SearchBarComponent from './SearchBarComponent';
+import ManagerSearchBarComponent from './ManagerSearchBarComponent';
+import ProfileShowComponent from './user/ProfileShowComponent';
+import ProfileEditorComponent from './user/ProfileEditorComponent';
 
 export {
     TabBar,
@@ -22,4 +25,7 @@ export {
     MessComponent,
     BellComponent,
     SearchBarComponent,
+    ProfileShowComponent,
+    ProfileEditorComponent,
+    ManagerSearchBarComponent,
 };

@@ -20,6 +20,7 @@ export default createStore({
             role: STUDENT,
             departmentCode: '',
             majorCode: '',
+            address: '',
             status: true,
         },
         currentIO: null,
@@ -30,7 +31,7 @@ export default createStore({
         SET_AUTH_USER(state, newAccessToken) {
             state.accessToken = newAccessToken;
         },
-        SET_USER_INFO(state, newUserInfo) {
+        SET_INIT_USER_INFO(state, newUserInfo) {
             state.userInfo = {
                 email: newUserInfo.email || '',
                 studentCode: newUserInfo.student_code || '',
@@ -40,9 +41,13 @@ export default createStore({
                 role: newUserInfo.role || STUDENT,
                 departmentCode: newUserInfo.department_code || '',
                 majorCode: newUserInfo.major_code || '',
+                address: newUserInfo.address || '',
                 status: newUserInfo.status || true,
             };
             this.commit('SET_CURRENT_IO', state.userInfo.email);
+        },
+        SET_USER_INFO(state, newUserInfo) {
+            state.userInfo = newUserInfo;
         },
         SET_OPEN_MESS(state) {
             state.isOpenMess = true;

@@ -26,7 +26,7 @@
                 <div class="content-view__pagination">
                     <a-pagination
                         v-model:current="currentPage"
-                        :total="maxPage"
+                        :total="maxPage ? maxPage : 0"
                         :pageSizeOptions="['10']"
                         :showSizeChanger="false"
                     />
@@ -85,7 +85,11 @@
             const getMaxPagePost = async (query = {}) => {
                 const res = await getMaxPagePostResponse(query);
                 if (res.status) {
-                    maxPage.value = res.data;
+                    if (typeof res.data === 'number') {
+                        maxPage.value = res.data;
+                    } else {
+                        maxPage.value = 0;
+                    }
                 }
             };
 

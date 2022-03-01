@@ -51,7 +51,7 @@ export const authModules = {
             localStorage.removeItem(ACCESS_TOKEN);
             if (res.status) {
                 commit('SET_AUTH_USER', '', { root: true });
-                commit('SET_USER_INFO', {}, { root: true });
+                commit('SET_INIT_USER_INFO', {}, { root: true });
                 commit('SET_CLOSE_MESS', {}, { root: true });
                 commit('SET_CLEAR_CURRENT_IO', {}, { root: true });
             }

@@ -31,6 +31,28 @@ export const getInfoUserResponse = async () => {
         return ERROR_DATA;
     }
 };
+export const getProfileUserResponse = async email => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${USER_URL}/${email}`,
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+export const getHistoryUserResponse = async email => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${USER_URL}/history/${email}`,
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
 
 /// get post
 export const getAllPostResponse = async (params = {}) => {
@@ -74,6 +96,20 @@ export const getPostByIdResponse = async idPost => {
         return ERROR_DATA;
     }
 };
+export const getPostManagerResponse = async () => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${POST_URL}/manager`,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
 
 /// get problem
 export const getAllProblemResponse = async (params = {}) => {
@@ -111,6 +147,20 @@ export const getProblemByIdResponse = async idProblem => {
         const res = await axios({
             method: GET,
             url: `${API_DOMAIN}${PROBLEM_URL}/${idProblem}`,
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+export const getProblemManagerResponse = async () => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${PROBLEM_URL}/manager`,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
         });
         return CONFIG_DATA_RESPONSE(res);
     } catch (e) {
@@ -263,6 +313,21 @@ export const searchResponse = async (params = {}) => {
         const res = await axios({
             method: GET,
             url: `${API_DOMAIN}${SEARCH_URL}`,
+            params,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+export const searchUserResponse = async (params = {}) => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${SEARCH_URL}/user`,
             params,
             headers: {
                 token: GET_ACCESS_TOKEN(),

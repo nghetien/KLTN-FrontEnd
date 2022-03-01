@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { API_DOMAIN, CONFIG_DATA_RESPONSE, ERROR_DATA, GET_ACCESS_TOKEN, PUT } from '../config';
-import { COMMENT_URL, MESSAGE_URL } from '../api_url';
+import { COMMENT_URL, MESSAGE_URL, USER_URL } from '../api_url';
 
 /// Comment
 export const editCommentResponse = async data => {
@@ -29,6 +29,38 @@ export const editMessageResponse = async (messageId, text) => {
             data: {
                 text,
             },
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// User
+export const editProfileResponse = async data => {
+    try {
+        const res = await axios({
+            method: PUT,
+            url: `${API_DOMAIN}${USER_URL}`,
+            data: data,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+export const editAvatarResponse = async data => {
+    try {
+        const res = await axios({
+            method: PUT,
+            url: `${API_DOMAIN}${USER_URL}/avatar`,
+            data: data,
             headers: {
                 token: GET_ACCESS_TOKEN(),
             },

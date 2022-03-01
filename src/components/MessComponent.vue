@@ -59,7 +59,7 @@
     import { MessageOutlined, UserOutlined } from '@ant-design/icons-vue';
     import { getAllConversationResponse } from '../services/method/get';
     import { convertStringDateToTimestamp } from '../lib/index';
-    import { MESSAGE_DELETED, PARTICIPANT, SYSTEM } from '../constants';
+    import { DEFAULT_AVATAR, MESSAGE_DELETED, PARTICIPANT, SYSTEM } from '../constants';
 
     export default defineComponent({
         name: 'MessComponent',
@@ -104,7 +104,7 @@
                         name: currentConversation.emailParticipant,
                         imageUrl: currentConversation.avatarParticipant
                             ? currentConversation.avatarParticipant
-                            : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__480.png',
+                            : DEFAULT_AVATAR,
                     },
                 });
                 await store.dispatch('message/GET_MESSAGE_LIST_BY_CONVERSATION_ID');

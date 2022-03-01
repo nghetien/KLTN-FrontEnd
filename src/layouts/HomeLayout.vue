@@ -46,7 +46,10 @@
                         <template #overlay>
                             <a-menu>
                                 <a-menu-item>
-                                    <router-link to="/manager" style="font-size: 16px">
+                                    <router-link
+                                        :to="`/manager/profile/${email}`"
+                                        style="font-size: 16px"
+                                    >
                                         <setting-outlined />
                                         Quản lý thông tin
                                     </router-link>

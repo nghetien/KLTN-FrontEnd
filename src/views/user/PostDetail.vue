@@ -44,9 +44,11 @@
                                 <UserOutlined />
                             </template>
                         </a-avatar>
-                        <router-link to="/" class="post-detail__view-user-name">{{
-                            postDetail.email ? postDetail.email : ''
-                        }}</router-link>
+                        <router-link
+                            :to="`/manager/profile/${postDetail.email}`"
+                            class="post-detail__view-user-name"
+                            >{{ postDetail.email ? postDetail.email : '' }}</router-link
+                        >
                         <a-button v-if="isShowFollow" type="primary" ghost @click="handleFollow">{{
                             isFollow ? 'Bỏ theo dõi' : 'Theo dõi'
                         }}</a-button>

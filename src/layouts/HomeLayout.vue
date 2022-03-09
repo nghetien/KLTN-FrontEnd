@@ -34,6 +34,7 @@
                         :src="avatar"
                         style="margin-right: 8px; flex-shrink: 0"
                         referrerpolicy="no-referrer"
+                        rel="noreferrer"
                     />
                     <a-avatar v-else style="margin-right: 8px; flex-shrink: 0">
                         <template #icon><UserOutlined /></template>

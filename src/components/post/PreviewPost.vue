@@ -126,7 +126,6 @@
             flex-wrap: wrap;
             align-items: center;
             margin: 5px 0;
-            height: 32px;
 
             &-name {
                 font-weight: 600;

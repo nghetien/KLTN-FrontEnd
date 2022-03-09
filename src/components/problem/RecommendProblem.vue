@@ -34,7 +34,6 @@
         MessageOutlined,
         TagOutlined,
     } from '@ant-design/icons-vue';
-    import { useRouter } from 'vue-router';
 
     export default defineComponent({
         name: 'RecommendProblem',
@@ -51,10 +50,8 @@
                 default: () => ({}),
             },
         },
-        setup(props) {
-            const router = useRouter();
+        setup() {
             const goToDetail = () => {
-                router.push(`/problem/${props.problem._id.toString()}`);
                 window.scrollTo(0, 0);
             };
 

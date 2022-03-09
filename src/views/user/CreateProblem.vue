@@ -1,9 +1,9 @@
 <template>
     <a-layout-content :style="{ background: '#f6f6f6', minHeight: '100vh' }">
-        <div class="create-post">
-            <div class="create-post__header">
+        <div class="create-problem">
+            <div class="create-problem__header">
                 <a-button
-                    class="create-post__tags-btn"
+                    class="create-problem__tags-btn"
                     size="large"
                     type="primary"
                     @click="createProblem"
@@ -12,11 +12,11 @@
                 </a-button>
             </div>
 
-            <h3 class="create-post__content-title">Tiêu đề</h3>
+            <h3 class="create-problem__content-title">Tiêu đề</h3>
             <a-input v-model:value="title" size="large" placeholder="Tiêu đề" />
 
-            <div class="create-post__tags">
-                <div class="create-post__tags-input">
+            <div class="create-problem__tags">
+                <div class="create-problem__tags-input">
                     <div class="">
                         <h3 style="font-weight: bold; padding-bottom: 10px">Thẻ</h3>
                         <div :key="index" v-for="(value, index) in listTag" style="display: inline">
@@ -27,19 +27,24 @@
                     </div>
                     <a-input v-model:value="tag" size="large" placeholder="Thẻ" />
                 </div>
-                <a-button class="create-post__tags-btn" size="large" type="primary" @click="addTag">
+                <a-button
+                    class="create-problem__tags-btn"
+                    size="large"
+                    type="primary"
+                    @click="addTag"
+                >
                     Thêm thẻ
                 </a-button>
             </div>
 
-            <h3 class="create-post__content-title">Nội dung thu gọn</h3>
+            <h3 class="create-problem__content-title">Nội dung thu gọn</h3>
             <a-input v-model:value="shortContent" size="large" placeholder="Nội dung thu gọn" />
 
-            <h3 class="create-post__content-title">Nội dung</h3>
+            <h3 class="create-problem__content-title">Nội dung</h3>
 
-            <div class="create-post__wrapper">
-                <div class="create-post__editor-container">
-                    <div class="create-post__editor-header">
+            <div class="create-problem__wrapper">
+                <div class="create-problem__editor-container">
+                    <div class="create-problem__editor-header">
                         <div style="display: flex">
                             <a-button
                                 type="primary"
@@ -60,7 +65,7 @@
                             trigger="click"
                         >
                             <template #content>
-                                <div class="create-post__popover">
+                                <div class="create-problem__popover">
                                     <MathLiveComponent
                                         v-model="mathLive"
                                         v-on:input="inputMathLive"
@@ -84,7 +89,10 @@
                                     </a-button>
                                 </div>
                             </template>
-                            <a-button class="create-post__editor-add-feature" type="primary" ghost
+                            <a-button
+                                class="create-problem__editor-add-feature"
+                                type="primary"
+                                ghost
                                 >Gợi ý ký tự toán học</a-button
                             >
                         </a-popover>
@@ -104,16 +112,16 @@
                         />
                     </div>
                     <a-textarea
-                        class="create-post__editor-markdown"
+                        class="create-problem__editor-markdown"
                         v-show="tab === 'markdown'"
                         v-model:value="contentMarkdown"
                         placeholder="Nhập nội dung"
                         style="background-color: #fff !important"
                     />
                 </div>
-                <div class="create-post__preview">
+                <div class="create-problem__preview">
                     <div style="height: 33px"></div>
-                    <div class="create-post__show ql-snow">
+                    <div class="create-problem__show ql-snow">
                         <div
                             class="ql-editor"
                             style="width: 100%; overflow: hidden"
@@ -135,7 +143,7 @@
     import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
     import { MathLiveComponent } from '../../components';
     import { renderKatex, markdownItRender } from '../../lib/index';
-    import { createProblemResponse } from '../../services/method/post';
+    import { createProblemResponse, uploadResponse } from '../../services/method/post';
     import { message } from 'ant-design-vue';
     import { useRouter } from 'vue-router';
 
@@ -193,7 +201,7 @@
                         typeContent: tab.value,
                         content: tab.value === 'html' ? convertToHtml.value : contentMarkdown.value,
                     };
-                    message.loading({ content: 'Đặt câu hỏi...', key });
+                    message.loading({ content: 'Đặt câu hỏi...', key, duration: 50 });
                     const res = await createProblemResponse(dataProblem);
                     if (res.status) {
                         message.success({ content: 'Đặt câu hỏi thành công!', key, duration: 2 });
@@ -226,14 +234,14 @@
                     placeholder: 'Nhập nội dung',
                     modules: {
                         imageUploader: {
-                            upload: () => {
-                                return new Promise(resolve => {
-                                    setTimeout(() => {
-                                        resolve(
-                                            'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/JavaScript-logo.png/480px-JavaScript-logo.png',
-                                        );
-                                    }, 3500);
-                                });
+                            upload: async file => {
+                                const formData = new FormData();
+                                formData.append('file', file, file.name);
+                                const res = await uploadResponse(formData);
+                                if (res.status) {
+                                    return res.data;
+                                }
+                                return '';
                             },
                         },
                         table: true,
@@ -283,7 +291,7 @@
                 }
             },
             deleteTag(index) {
-                this.listTag.splice(index, 0);
+                this.listTag.splice(index, 1);
             },
             onEditorReady(quill) {
                 this.quill = quill;
@@ -336,7 +344,10 @@
 </script>
 
 <style scoped lang="scss">
-    .create-post {
+    .ant-tag-hidden {
+        display: inline-block !important;
+    }
+    .create-problem {
         padding: 24px 25px;
 
         &__header {
@@ -413,15 +424,15 @@
         }
     }
     @media (max-width: 700px) {
-        .create-post__editor-header {
+        .create-problem__editor-header {
             flex-direction: column;
             justify-content: flex-start;
             align-items: flex-start;
         }
-        .create-post__editor-add-feature {
+        .create-problem__editor-add-feature {
             margin-top: 16px;
         }
-        .create-post__show {
+        .create-problem__show {
             margin-top: 64px;
         }
     }

@@ -10,7 +10,6 @@
                 v-for="(problem, index) in allProblem"
                 :key="index"
                 :problem="problem"
-                style="display: flex"
             />
         </div>
     </div>
@@ -59,7 +58,6 @@
             padding: 40px 20px;
             width: 50%;
             display: flex;
-            align-items: center;
             flex-direction: column;
         }
 
@@ -67,7 +65,6 @@
             padding: 40px 20px;
             width: 50%;
             display: flex;
-            align-items: center;
             flex-direction: column;
         }
 

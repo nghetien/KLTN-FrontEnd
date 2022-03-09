@@ -14,6 +14,8 @@ import {
     NOTIFICATION_URL,
     NOTIFICATION_MESSAGE_URL,
     UPLOAD_URL,
+    CONVERSATION_URL,
+    AI_SEARCH,
 } from '../api_url';
 
 /// Auth
@@ -211,6 +213,57 @@ export const uploadResponse = async formData => {
             headers: {
                 token: GET_ACCESS_TOKEN(),
                 'Content-Type': 'multipart/form-data',
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Conversation
+export const createConversationResponse = async (email, emailParticipant) => {
+    try {
+        const res = await axios({
+            method: POST,
+            url: `${API_DOMAIN}${CONVERSATION_URL}`,
+            data: {
+                email,
+                emailParticipant,
+            },
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Conversation
+export const aiSearchPostResponse = async searchValue => {
+    try {
+        const res = await axios({
+            method: POST,
+            url: `${API_DOMAIN}${AI_SEARCH}`,
+            data: {
+                searchValue,
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+export const addTagToGroupResponse = async (contentSearch, listTags) => {
+    try {
+        const res = await axios({
+            method: POST,
+            url: `${API_DOMAIN}${AI_SEARCH}/add-tag-to-group`,
+            data: {
+                contentSearch,
+                listTags,
             },
         });
         return CONFIG_DATA_RESPONSE(res);

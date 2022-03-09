@@ -27,8 +27,10 @@
                     <a-button
                         style="background: var(--yellow); border-color: var(--yellow)"
                         type="primary"
-                        >Chỉnh sửa</a-button
+                        @click="handleEditPost(record.id)"
                     >
+                        Chỉnh sửa
+                    </a-button>
                 </template>
             </template>
         </a-table>
@@ -39,72 +41,87 @@
     import { defineComponent, onMounted, ref } from 'vue';
     import { useRouter } from 'vue-router';
     import { getPostManagerResponse } from '../../services/method/get';
-    import { PUBLIC } from '../../constants';
+    import { ADMIN, PUBLIC } from '../../constants';
     import { convertTimestampToTime } from '../../lib';
-    const columns = [
-        {
-            title: 'Tên bài viết',
-            dataIndex: 'namePost',
-            key: 'namePost',
-            sorter: (a, b) => ('' + a.namePost).localeCompare(b.namePost),
-        },
-        {
-            title: 'Nội dung ngắn',
-            dataIndex: 'shortContent',
-            key: 'shortContent',
-            sorter: (a, b) => ('' + a.shortContent).localeCompare(b.shortContent),
-        },
-        {
-            title: 'Thời gian',
-            dataIndex: 'timeCreate',
-            key: 'timeCreate',
-            sorter: (a, b) => a.timeCreate - b.timeCreate,
-        },
-        {
-            title: 'Thẻ',
-            key: 'tags',
-            dataIndex: 'tags',
-            sorter: (a, b) => a.tags.length - b.tags.length,
-        },
-        {
-            title: 'Trạng thái',
-            key: 'status',
-            dataIndex: 'status',
-            sorter: (a, b) => a.status - b.status,
-            filters: [
-                {
-                    text: 'Công khai',
-                    value: 'PUBLIC',
-                },
-                {
-                    text: 'Riêng tư',
-                    value: 'PRIVATE',
-                },
-            ],
-            filterMultiple: false,
-            onFilter: (value, record) => record.status.indexOf(value) === 0,
-        },
-        {
-            title: 'Hành động',
-            key: 'action',
-        },
-    ];
+    import { useStore } from 'vuex';
+
     export default defineComponent({
         name: 'ManagerPost',
         setup() {
             const router = useRouter();
+            const store = useStore();
             const dataSource = ref([]);
+            const columns = ref([
+                {
+                    title: 'Tên bài viết',
+                    dataIndex: 'namePost',
+                    key: 'namePost',
+                    sorter: (a, b) => ('' + a.namePost).localeCompare(b.namePost),
+                },
+                {
+                    title: 'Nội dung ngắn',
+                    dataIndex: 'shortContent',
+                    key: 'shortContent',
+                    sorter: (a, b) => ('' + a.shortContent).localeCompare(b.shortContent),
+                },
+                {
+                    title: 'Thời gian',
+                    dataIndex: 'timeCreate',
+                    key: 'timeCreate',
+                    sorter: (a, b) => a.timeCreate - b.timeCreate,
+                },
+                {
+                    title: 'Thẻ',
+                    key: 'tags',
+                    dataIndex: 'tags',
+                    sorter: (a, b) => a.tags.length - b.tags.length,
+                },
+                {
+                    title: 'Trạng thái',
+                    key: 'status',
+                    dataIndex: 'status',
+                    sorter: (a, b) => a.status - b.status,
+                    filters: [
+                        {
+                            text: 'Công khai',
+                            value: 'PUBLIC',
+                        },
+                        {
+                            text: 'Riêng tư',
+                            value: 'PRIVATE',
+                        },
+                    ],
+                    filterMultiple: false,
+                    onFilter: (value, record) => record.status.indexOf(value) === 0,
+                },
+                {
+                    title: 'Hành động',
+                    key: 'action',
+                },
+            ]);
 
             const handleAddPost = () => {
                 router.push('/create-post');
             };
+            const handleEditPost = idPost => {
+                router.push(`/edit-post/${idPost}`);
+            };
 
             onMounted(async () => {
+                if (store.state.userInfo.role === ADMIN) {
+                    columns.value.unshift({
+                        title: 'Email',
+                        dataIndex: 'email',
+                        key: 'email',
+                        sorter: (a, b) => ('' + a.email).localeCompare(b.email),
+                    });
+                }
                 const res = await getPostManagerResponse();
                 if (res.status) {
                     dataSource.value = res.data.map((post, index) => ({
                         key: index,
                         id: post._id.toString(),
+                        email: post.email,
                         namePost: post.namePost,
                         shortContent: post.shortContent,
                         timeCreate: post.timeCreate,
@@ -120,6 +137,7 @@
                 handleAddPost,
                 PUBLIC,
                 convertTimestampToTime,
+                handleEditPost,
             };
         },
     });

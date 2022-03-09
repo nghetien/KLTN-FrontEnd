@@ -1,5 +1,12 @@
 <template>
-    <div class="profile">
+    <div v-if="showFollow" class="profile">
+        <UserFollowComponent
+            :email-user="email"
+            @handleClickCloseShowFollow="handleClickCloseShowFollow"
+            :is-followed="showFollow === 'FOLLOWED' ? true : false"
+        />
+    </div>
+    <div v-else class="profile">
         <check-outlined
             v-if="showEditor && isOwner"
             class="profile-done"
@@ -41,6 +48,32 @@
                         />
                         <span class="profile_user-detail-content" v-else>{{ phoneNumber }}</span>
                     </p>
+                    <p class="profile_user-detail-item">
+                        Đang theo dõi:
+                        <span
+                            style="
+                                margin-left: 10px;
+                                color: #1890ff;
+                                text-decoration-line: underline;
+                                cursor: pointer;
+                            "
+                            @click="handleClickShowFollow('FOLLOW')"
+                            >{{ countFollow }}</span
+                        >
+                    </p>
+                    <p class="profile_user-detail-item">
+                        Số người theo dõi:
+                        <span
+                            style="
+                                margin-left: 10px;
+                                color: #1890ff;
+                                text-decoration-line: underline;
+                                cursor: pointer;
+                            "
+                            @click="handleClickShowFollow('FOLLOWED')"
+                            >{{ countFollowed }}</span
+                        >
+                    </p>
                 </div>
                 <input
                     type="file"
@@ -75,6 +108,15 @@
                 <a-button v-if="!isOwner" type="primary" ghost @click="handleFollow">{{
                     isFollow ? 'Bỏ theo dõi' : 'Theo dõi'
                 }}</a-button>
+                <a-button
+                    style="margin-left: 20px"
+                    v-if="!isOwner"
+                    type="primary"
+                    ghost
+                    @click="handleCreateConversation"
+                >
+                    Nhắn tin
+                </a-button>
             </div>
         </div>
         <div style="margin-top: 40px">
@@ -125,7 +167,7 @@
             </div>
         </div>
         <a-descriptions title="Hoạt động" class="profile_action-count">
-            <a-descriptions-item label="Số lượng bài  đăng">{{ countPost }}</a-descriptions-item>
+            <a-descriptions-item label="Số lượng bài đăng">{{ countPost }}</a-descriptions-item>
             <a-descriptions-item label="Số lượng câu hỏi">{{ countProblem }}</a-descriptions-item>
         </a-descriptions>
         <div class="profile_action">
@@ -202,23 +244,31 @@
     import { useStore } from 'vuex';
     import { SettingOutlined, CheckOutlined } from '@ant-design/icons-vue';
     import { getFollowedResponse, getProfileUserResponse } from '../../services/method/get';
-    import { DEFAULT_AVATAR, STUDENT } from '../../constants';
+    import { DEFAULT_AVATAR, PARTICIPANT, STUDENT } from '../../constants';
     import convertTimestamp from '../../lib/convertTimestamp';
     import { editAvatarResponse, editProfileResponse } from '../../services/method/put';
     import { message } from 'ant-design-vue';
-    import { toggleFollowResponse, uploadResponse } from '../../services/method/post';
+    import {
+        createConversationResponse,
+        toggleFollowResponse,
+        uploadResponse,
+    } from '../../services/method/post';
+    import { UserFollowComponent } from '../../components/index';
+
     const key = 'updatable';
     export default defineComponent({
         name: 'Profile',
         components: {
             SettingOutlined,
             CheckOutlined,
+            UserFollowComponent,
         },
         setup() {
             const route = useRoute();
             const router = useRouter();
             const store = useStore();
 
+            const showFollow = ref('');
             const showEditor = ref(false);
             const avatar = ref('');
             const initAvatar = ref('');
@@ -234,6 +284,8 @@
             const address = ref('');
             const countPost = ref(0);
             const countProblem = ref(0);
+            const countFollow = ref(0);
+            const countFollowed = ref(0);
             const allPost = ref([]);
             const allProblem = ref([]);
             const isFollow = ref(false);
@@ -332,6 +384,12 @@
                     });
                 }
             };
+            const handleClickShowFollow = type => {
+                showFollow.value = type;
+            };
+            const handleClickCloseShowFollow = () => {
+                showFollow.value = '';
+            };
             const handleFollow = async () => {
                 isFollow.value = !isFollow.value;
                 await toggleFollowResponse({
@@ -339,11 +397,38 @@
                     emailUserFollow: route.params.email,
                 });
             };
-
             const loadFollowed = async () => {
                 const res = await getFollowedResponse(route.params.email);
                 if (res.status) {
                     isFollow.value = true;
+                }
+            };
+            const isOpenMess = computed(() => store.state.isOpenMess);
+            const currentConversationId = computed(
+                () => store.state['message'].currentConversationId,
+            );
+            const handleCreateConversation = async () => {
+                const res = await createConversationResponse(
+                    store.state.userInfo.email,
+                    route.params.email,
+                );
+                if (res.status) {
+                    if (
+                        isOpenMess.value &&
+                        res.data._id.toString() === currentConversationId.value
+                    ) {
+                        return;
+                    }
+                    store.commit('message/SET_CURRENT_PARTICIPANT', {
+                        conversationId: res.data._id.toString(),
+                        participant: {
+                            id: PARTICIPANT,
+                            name: route.params.email,
+                            imageUrl: image.value ? image.value : DEFAULT_AVATAR,
+                        },
+                    });
+                    await store.dispatch('message/GET_MESSAGE_LIST_BY_CONVERSATION_ID');
+                    store.commit('SET_OPEN_MESS');
                 }
             };
             const checkShowNewAvatar = computed(() => {
@@ -375,6 +460,8 @@
                         countProblem.value = dataResponse.countProblem;
                         allPost.value = dataResponse.post;
                         allProblem.value = dataResponse.problem;
+                        countFollow.value = dataResponse.countFollow;
+                        countFollowed.value = dataResponse.countFollowed;
                     } else {
                         await router.push(`/manager/profile/${store.state.userInfo.email}`);
                     }
@@ -397,7 +484,10 @@
                 major,
                 address,
                 countPost,
+                countFollow,
+                showFollow,
                 countProblem,
+                countFollowed,
                 allPost,
                 allProblem,
                 toggleShowEditor,
@@ -412,6 +502,9 @@
                 handleClickUpdateAvatar,
                 checkShowNewAvatar,
                 handleFollow,
+                handleClickShowFollow,
+                handleClickCloseShowFollow,
+                handleCreateConversation,
             };
         },
     });

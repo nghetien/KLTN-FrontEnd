@@ -1,4 +1,31 @@
 <template>
+    <a-comment>
+        <template #avatar>
+            <a-avatar
+                v-if="state.userInfo.avatar"
+                :src="state.userInfo.avatar"
+                :alt="state.userInfo.email"
+            />
+            <a-avatar v-else>
+                <template #icon><UserOutlined /></template>
+            </a-avatar>
+        </template>
+        <template #content>
+            <a-form-item>
+                <a-textarea show-count :maxlength="1000" v-model:value="content" :rows="4" />
+            </a-form-item>
+            <a-form-item>
+                <a-button
+                    html-type="submit"
+                    :loading="submitting"
+                    type="primary"
+                    @click="handleSubmit"
+                >
+                    Bình luận
+                </a-button>
+            </a-form-item>
+        </template>
+    </a-comment>
     <a-list v-if="comments.length" :data-source="comments" item-layout="horizontal">
         <template #header>
             <div style="display: flex; justify-content: space-between; align-items: center">
@@ -69,33 +96,6 @@
             </a-list-item>
         </template>
     </a-list>
-    <a-comment>
-        <template #avatar>
-            <a-avatar
-                v-if="state.userInfo.avatar"
-                :src="state.userInfo.avatar"
-                :alt="state.userInfo.email"
-            />
-            <a-avatar v-else>
-                <template #icon><UserOutlined /></template>
-            </a-avatar>
-        </template>
-        <template #content>
-            <a-form-item>
-                <a-textarea show-count :maxlength="1000" v-model:value="content" :rows="4" />
-            </a-form-item>
-            <a-form-item>
-                <a-button
-                    html-type="submit"
-                    :loading="submitting"
-                    type="primary"
-                    @click="handleSubmit"
-                >
-                    Bình luận
-                </a-button>
-            </a-form-item>
-        </template>
-    </a-comment>
 </template>
 
 <script>

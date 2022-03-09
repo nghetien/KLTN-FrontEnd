@@ -12,6 +12,8 @@ import SearchBarComponent from './SearchBarComponent';
 import ManagerSearchBarComponent from './ManagerSearchBarComponent';
 import ProfileShowComponent from './user/ProfileShowComponent';
 import ProfileEditorComponent from './user/ProfileEditorComponent';
+import UserFollowComponent from './user/UserFollowComponent';
+import SearchRecommend from './post/SearchRecommend';
 
 export {
     TabBar,
@@ -28,4 +30,6 @@ export {
     ProfileShowComponent,
     ProfileEditorComponent,
     ManagerSearchBarComponent,
+    UserFollowComponent,
+    SearchRecommend,
 };

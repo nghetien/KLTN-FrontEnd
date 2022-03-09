@@ -23,8 +23,21 @@
                     <a-button
                         style="background: var(--yellow); border-color: var(--yellow)"
                         type="primary"
-                        >Chỉnh sửa</a-button
+                        @click="handleEditProblem(record.id)"
                     >
+                        Chỉnh sửa
+                    </a-button>
+                    <a-button
+                        style="
+                            margin-left: 10px;
+                            background: var(--red);
+                            border-color: var(--yellow);
+                        "
+                        type="primary"
+                        @click="handleDeleteProblem(record.id)"
+                    >
+                        Xóa
+                    </a-button>
                 </template>
             </template>
         </a-table>
@@ -32,59 +45,16 @@
 </template>
 
 <script>
-    import { defineComponent, onMounted, ref } from 'vue';
+    import { createVNode, defineComponent, onMounted, ref } from 'vue';
     import { useRouter } from 'vue-router';
     import { getProblemManagerResponse } from '../../services/method/get';
-    import { PUBLIC } from '../../constants';
+    import { ADMIN, PUBLIC } from '../../constants';
     import { convertTimestampToTime } from '../../lib';
-    import { CheckOutlined } from '@ant-design/icons-vue';
+    import { CheckOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue';
+    import { deleteProblemResponse } from '../../services/method/delete';
+    import { message, Modal } from 'ant-design-vue';
+    import { useStore } from 'vuex';
 
-    const columns = [
-        {
-            title: 'Nội dung câu hỏi',
-            dataIndex: 'nameProblem',
-            key: 'nameProblem',
-            sorter: (a, b) => ('' + a.nameProblem).localeCompare(b.nameProblem),
-        },
-        {
-            title: 'Nội dung ngắn',
-            dataIndex: 'shortContent',
-            key: 'shortContent',
-            sorter: (a, b) => ('' + a.shortContent).localeCompare(b.shortContent),
-        },
-        {
-            title: 'Thời gian',
-            dataIndex: 'timeCreate',
-            key: 'timeCreate',
-            sorter: (a, b) => a.timeCreate - b.timeCreate,
-        },
-        {
-            title: 'Thẻ',
-            key: 'tags',
-            dataIndex: 'tags',
-            sorter: (a, b) => a.tags.length - b.tags.length,
-        },
-        {
-            title: 'Có đáp án',
-            key: 'isHaveCorrectAnswer',
-            dataIndex: 'isHaveCorrectAnswer',
-            filters: [
-                {
-                    text: 'Có đáp án',
-                    value: true,
-                },
-                {
-                    text: 'Chưa có đáp án',
-                    value: false,
-                },
-            ],
-            onFilter: (value, record) => value === record.isHaveCorrectAnswer,
-        },
-        {
-            title: 'Hành động',
-            key: 'action',
-        },
-    ];
     export default defineComponent({
         name: 'ManagerProblem',
         components: {
@@ -92,24 +62,104 @@
         },
         setup() {
             const router = useRouter();
+            const store = useStore();
+            const columns = ref([
+                {
+                    title: 'Nội dung câu hỏi',
+                    dataIndex: 'nameProblem',
+                    key: 'nameProblem',
+                    sorter: (a, b) => ('' + a.nameProblem).localeCompare(b.nameProblem),
+                },
+                {
+                    title: 'Nội dung ngắn',
+                    dataIndex: 'shortContent',
+                    key: 'shortContent',
+                    sorter: (a, b) => ('' + a.shortContent).localeCompare(b.shortContent),
+                },
+                {
+                    title: 'Thời gian',
+                    dataIndex: 'timeCreate',
+                    key: 'timeCreate',
+                    sorter: (a, b) => a.timeCreate - b.timeCreate,
+                },
+                {
+                    title: 'Thẻ',
+                    key: 'tags',
+                    dataIndex: 'tags',
+                    sorter: (a, b) => a.tags.length - b.tags.length,
+                },
+                {
+                    title: 'Có đáp án',
+                    key: 'isHaveCorrectAnswer',
+                    dataIndex: 'isHaveCorrectAnswer',
+                    filters: [
+                        {
+                            text: 'Có đáp án',
+                            value: true,
+                        },
+                        {
+                            text: 'Chưa có đáp án',
+                            value: false,
+                        },
+                    ],
+                    onFilter: (value, record) => value === record.isHaveCorrectAnswer,
+                },
+                {
+                    title: 'Hành động',
+                    key: 'action',
+                },
+            ]);
             const dataSource = ref([]);
+            const key = 'updatable';
 
             const handleAddProblem = () => {
                 router.push('/create-problem');
             };
-
-            onMounted(async () => {
+            const handleEditProblem = idProblem => {
+                router.push(`/edit-problem/${idProblem}`);
+            };
+            const handleDeleteProblem = async idProblem => {
+                Modal.confirm({
+                    title: 'Bạn có chắc chắn muốn xóa câu hỏi này đi không?',
+                    icon: createVNode(ExclamationCircleOutlined),
+                    okText: 'Đồng ý',
+                    cancelText: 'Hủy',
+                    async onOk() {
+                        const res = await deleteProblemResponse(idProblem);
+                        if (res.status) {
+                            message.success({ content: 'Lưu viết thành công!', key, duration: 2 });
+                            await getDataInit();
+                        } else {
+                            message.error('Lưu viết thất bại');
+                        }
+                    },
+                });
+            };
+            const getDataInit = async () => {
                 const res = await getProblemManagerResponse();
                 if (res.status) {
                     dataSource.value = res.data.map((problem, index) => ({
                         key: index,
                         id: problem._id.toString(),
+                        email: problem.email,
                         nameProblem: problem.nameProblem,
                         shortContent: problem.shortContent,
                         timeCreate: problem.timeCreate,
                         isHaveCorrectAnswer: problem.isHaveCorrectAnswer,
                         tags: problem.tags.map(tag => tag.content),
                     }));
+                }
+            };
+
+            onMounted(() => {
+                getDataInit();
+                if (store.state.userInfo.role === ADMIN) {
+                    columns.value.unshift({
+                        title: 'Email',
+                        dataIndex: 'email',
+                        key: 'email',
+                        sorter: (a, b) => ('' + a.email).localeCompare(b.email),
+                    });
                 }
             });
 
@@ -119,6 +169,8 @@
                 handleAddProblem,
                 PUBLIC,
                 convertTimestampToTime,
+                handleEditProblem,
+                handleDeleteProblem,
             };
         },
     });

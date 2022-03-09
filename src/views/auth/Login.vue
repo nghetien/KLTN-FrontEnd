@@ -42,7 +42,6 @@
                     <a-form-item name="remember" no-style>
                         <a-checkbox v-model:checked="formLogin.remember">Nhớ tài khoản</a-checkbox>
                     </a-form-item>
-                    <a class="login-form-forgot" href="">Quên mật khẩu?</a>
                 </div>
 
                 <a-form-item>
@@ -55,13 +54,6 @@
                         Đăng nhập
                     </a-button>
                 </a-form-item>
-
-                <div style="text-align: center; margin-bottom: 18px">
-                    <p>
-                        Nếu bạn chưa có tài khoản?
-                        <router-link to="/register">Đăng ký</router-link>
-                    </p>
-                </div>
 
                 <div class="login-form-wrap">
                     <a-button
@@ -179,9 +171,6 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-        }
-
-        .login-form-forgot {
             margin-bottom: 24px;
         }
 

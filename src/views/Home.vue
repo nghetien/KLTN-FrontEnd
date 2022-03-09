@@ -10,7 +10,11 @@
                     mode="horizontal"
                 >
                     <a-menu-item key="new" class="custom-menu-item">Mới nhất</a-menu-item>
+                    <a-menu-item key="trending" class="custom-menu-item">Xu hướng</a-menu-item>
                     <a-menu-item key="follow" class="custom-menu-item">Đang theo dõi</a-menu-item>
+                    <a-menu-item key="ai_search" class="custom-menu-item">
+                        Tìm kiếm liên quan
+                    </a-menu-item>
                 </a-menu>
                 <a-button type="primary"
                     ><router-link to="/create-post"
@@ -19,7 +23,7 @@
                 >
             </div>
         </a-layout-header>
-        <div class="content-view">
+        <div v-if="!aiSearchTab" class="content-view">
             <div class="content-view-list">
                 <h2 class="content-view-list__title">BÀI VIẾT</h2>
                 <PreviewPost v-for="(post, index) in allPost" :key="index" :post="post" />
@@ -41,6 +45,9 @@
                 />
             </div>
         </div>
+        <div v-else>
+            <AISearch />
+        </div>
     </div>
 </template>
 
@@ -53,6 +60,7 @@
         getAllProblemResponse,
         getMaxPagePostResponse,
     } from '../services/method/get';
+    import AISearch from './AISearch';
 
     export default defineComponent({
         name: 'Home',
@@ -60,6 +68,7 @@
             PreviewPost,
             RecommendProblem,
             EditOutlined,
+            AISearch,
         },
         setup() {
             const allPost = ref([]);
@@ -67,6 +76,7 @@
             const currentPage = ref(1);
             const maxPage = ref(0);
             const allRecommendProblem = ref([]);
+            const aiSearchTab = ref(false);
 
             const getRecommendProblem = async () => {
                 const res = await getAllProblemResponse();
@@ -100,11 +110,21 @@
             watch(selectedKeys, () => {
                 currentPage.value = 1;
                 if (selectedKeys.value[0] === 'follow') {
+                    aiSearchTab.value = false;
                     Promise.all([
                         getDataPost({ queryUserFollow: true }),
                         getMaxPagePost({ queryUserFollow: true }),
                     ]);
+                } else if (selectedKeys.value[0] === 'ai_search') {
+                    aiSearchTab.value = true;
+                } else if (selectedKeys.value[0] === 'trending') {
+                    aiSearchTab.value = false;
+                    Promise.all([
+                        getDataPost({ trending: true }),
+                        getMaxPagePost({ trending: true }),
+                    ]);
                 } else {
+                    aiSearchTab.value = false;
                     Promise.all([getDataPost(), getMaxPagePost()]);
                 }
             });
@@ -112,6 +132,10 @@
             watch(currentPage, () => {
                 if (selectedKeys.value[0] === 'follow') {
                     getDataPost({ queryUserFollow: true, pagePost: currentPage.value - 1 });
+                } else if (selectedKeys.value[0] === 'trending') {
+                    getDataPost({ pagePost: currentPage.value - 1, trending: true });
+                } else if (selectedKeys.value[0] === 'ai_search') {
+                    return;
                 } else {
                     getDataPost({ pagePost: currentPage.value - 1 });
                 }
@@ -123,6 +147,7 @@
                 currentPage,
                 maxPage,
                 allRecommendProblem,
+                aiSearchTab,
             };
         },
     });

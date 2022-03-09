@@ -27,3 +27,5 @@ export const NOTIFICATION_MESSAGE_URL = '/api/notification-message';
 export const SEARCH_URL = '/api/search';
 /// UPLOAD
 export const UPLOAD_URL = '/api/upload';
+/// API SEARCH
+export const AI_SEARCH = '/api/ai-search';

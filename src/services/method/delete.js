@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { API_DOMAIN, CONFIG_DATA_RESPONSE, ERROR_DATA, DELETE, GET_ACCESS_TOKEN } from '../config';
-import { COMMENT_URL, LOGOUT_URL, MESSAGE_URL } from '../api_url';
+import { COMMENT_URL, LOGOUT_URL, MESSAGE_URL, PROBLEM_URL } from '../api_url';
 
 export const logoutResponse = async email => {
     try {
@@ -38,6 +38,22 @@ export const deleteMessageResponse = async messageId => {
         const res = await axios({
             method: DELETE,
             url: `${API_DOMAIN}${MESSAGE_URL}/${messageId}`,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Problem
+export const deleteProblemResponse = async idProblem => {
+    try {
+        const res = await axios({
+            method: DELETE,
+            url: `${API_DOMAIN}${PROBLEM_URL}/${idProblem}`,
             headers: {
                 token: GET_ACCESS_TOKEN(),
             },

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { API_DOMAIN, CONFIG_DATA_RESPONSE, ERROR_DATA, GET_ACCESS_TOKEN, PUT } from '../config';
-import { COMMENT_URL, MESSAGE_URL, USER_URL } from '../api_url';
+import { COMMENT_URL, MESSAGE_URL, POST_URL, PROBLEM_URL, USER_URL } from '../api_url';
 
 /// Comment
 export const editCommentResponse = async data => {
@@ -60,6 +60,40 @@ export const editAvatarResponse = async data => {
         const res = await axios({
             method: PUT,
             url: `${API_DOMAIN}${USER_URL}/avatar`,
+            data: data,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Post
+export const editPostResponse = async (data, idPost) => {
+    try {
+        const res = await axios({
+            method: PUT,
+            url: `${API_DOMAIN}${POST_URL}/${idPost}`,
+            data: data,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// Problem
+export const editProblemResponse = async (data, idProblem) => {
+    try {
+        const res = await axios({
+            method: PUT,
+            url: `${API_DOMAIN}${PROBLEM_URL}/${idProblem}`,
             data: data,
             headers: {
                 token: GET_ACCESS_TOKEN(),

@@ -85,11 +85,12 @@ export const getMaxPagePostResponse = async (params = {}) => {
         return ERROR_DATA;
     }
 };
-export const getPostByIdResponse = async idPost => {
+export const getPostByIdResponse = async (idPost, params = {}) => {
     try {
         const res = await axios({
             method: GET,
             url: `${API_DOMAIN}${POST_URL}/${idPost}`,
+            params,
         });
         return CONFIG_DATA_RESPONSE(res);
     } catch (e) {
@@ -104,6 +105,17 @@ export const getPostManagerResponse = async () => {
             headers: {
                 token: GET_ACCESS_TOKEN(),
             },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+export const findAllPostResponse = async () => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${POST_URL}/find-all`,
         });
         return CONFIG_DATA_RESPONSE(res);
     } catch (e) {
@@ -142,11 +154,12 @@ export const getMaxPageProblemResponse = async (params = {}) => {
         return ERROR_DATA;
     }
 };
-export const getProblemByIdResponse = async idProblem => {
+export const getProblemByIdResponse = async (idProblem, params = {}) => {
     try {
         const res = await axios({
             method: GET,
             url: `${API_DOMAIN}${PROBLEM_URL}/${idProblem}`,
+            params,
         });
         return CONFIG_DATA_RESPONSE(res);
     } catch (e) {
@@ -219,6 +232,23 @@ export const getFollowedResponse = async emailUserFollow => {
         const res = await axios({
             method: GET,
             url: `${API_DOMAIN}${FOLLOW_URL}/${emailUserFollow}`,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+export const getUserFollowedResponse = async (emailTarget, isFollowed) => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${FOLLOW_URL}/user-followed/${emailTarget}`,
+            params: {
+                isFollowed,
+            },
             headers: {
                 token: GET_ACCESS_TOKEN(),
             },
@@ -329,6 +359,37 @@ export const searchUserResponse = async (params = {}) => {
             method: GET,
             url: `${API_DOMAIN}${SEARCH_URL}/user`,
             params,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+/// bookmark
+export const getBookmarkPostResponse = async () => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${BOOKMARK_URL}/post`,
+            headers: {
+                token: GET_ACCESS_TOKEN(),
+            },
+        });
+        return CONFIG_DATA_RESPONSE(res);
+    } catch (e) {
+        return ERROR_DATA;
+    }
+};
+
+export const getBookmarkProblemResponse = async () => {
+    try {
+        const res = await axios({
+            method: GET,
+            url: `${API_DOMAIN}${BOOKMARK_URL}/problem`,
             headers: {
                 token: GET_ACCESS_TOKEN(),
             },

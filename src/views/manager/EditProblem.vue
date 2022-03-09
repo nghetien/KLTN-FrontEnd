@@ -1,40 +1,22 @@
 <template>
     <a-layout-content :style="{ background: '#f6f6f6', minHeight: '100vh' }">
-        <div class="create-post">
-            <div class="create-post__header">
-                <a-dropdown>
-                    <template #overlay>
-                        <a-menu @click="handleClickStatus">
-                            <a-menu-item key="0">
-                                <LockOutlined />
-                                Riêng tư
-                            </a-menu-item>
-                            <a-menu-item key="1">
-                                <EyeOutlined />
-                                Công khai
-                            </a-menu-item>
-                        </a-menu>
-                    </template>
-                    <a-button>
-                        {{ showStatusPost }}
-                        <DownOutlined />
-                    </a-button>
-                </a-dropdown>
+        <div class="edit-problem">
+            <div class="edit-problem__header">
                 <a-button
-                    class="create-post__tags-btn"
+                    class="edit-problem__tags-btn"
                     size="large"
                     type="primary"
-                    @click="createPost"
+                    @click="editProblem"
                 >
-                    Đăng bài viết
+                    Lưu câu hỏi
                 </a-button>
             </div>
 
-            <h3 class="create-post__content-title">Tiêu đề</h3>
+            <h3 class="edit-problem__content-title">Tiêu đề</h3>
             <a-input v-model:value="title" size="large" placeholder="Tiêu đề" />
 
-            <div class="create-post__tags">
-                <div class="create-post__tags-input">
+            <div class="edit-problem__tags">
+                <div class="edit-problem__tags-input">
                     <div class="">
                         <h3 style="font-weight: bold; padding-bottom: 10px">Thẻ</h3>
                         <div :key="index" v-for="(value, index) in listTag" style="display: inline">
@@ -45,19 +27,24 @@
                     </div>
                     <a-input v-model:value="tag" size="large" placeholder="Thẻ" />
                 </div>
-                <a-button class="create-post__tags-btn" size="large" type="primary" @click="addTag">
+                <a-button
+                    class="edit-problem__tags-btn"
+                    size="large"
+                    type="primary"
+                    @click="addTag"
+                >
                     Thêm thẻ
                 </a-button>
             </div>
 
-            <h3 class="create-post__content-title">Nội dung thu gọn</h3>
+            <h3 class="edit-problem__content-title">Nội dung thu gọn</h3>
             <a-input v-model:value="shortContent" size="large" placeholder="Nội dung thu gọn" />
 
-            <h3 class="create-post__content-title">Nội dung</h3>
+            <h3 class="edit-problem__content-title">Nội dung</h3>
 
-            <div class="create-post__wrapper">
-                <div class="create-post__editor-container">
-                    <div class="create-post__editor-header">
+            <div class="edit-problem__wrapper">
+                <div class="edit-problem__editor-container">
+                    <div class="edit-problem__editor-header">
                         <div style="display: flex">
                             <a-button
                                 type="primary"
@@ -78,7 +65,7 @@
                             trigger="click"
                         >
                             <template #content>
-                                <div class="create-post__popover">
+                                <div class="edit-problem__popover">
                                     <MathLiveComponent
                                         v-model="mathLive"
                                         v-on:input="inputMathLive"
@@ -102,7 +89,7 @@
                                     </a-button>
                                 </div>
                             </template>
-                            <a-button class="create-post__editor-add-feature" type="primary" ghost
+                            <a-button class="edit-problem__editor-add-feature" type="primary" ghost
                                 >Gợi ý ký tự toán học</a-button
                             >
                         </a-popover>
@@ -122,16 +109,16 @@
                         />
                     </div>
                     <a-textarea
-                        class="create-post__editor-markdown"
+                        class="edit-problem__editor-markdown"
                         v-show="tab === 'markdown'"
                         v-model:value="contentMarkdown"
                         placeholder="Nhập nội dung"
                         style="background-color: #fff !important"
                     />
                 </div>
-                <div class="create-post__preview">
-                    <a-button type="primary" ghost @click="savePost">Lưu</a-button>
-                    <div class="create-post__show ql-snow">
+                <div class="edit-problem__preview">
+                    <div style="height: 33px"></div>
+                    <div class="edit-problem__show ql-snow">
                         <div
                             class="ql-editor"
                             style="width: 100%; overflow: hidden"
@@ -145,8 +132,7 @@
 </template>
 
 <script>
-    import { LockOutlined, EyeOutlined, DownOutlined } from '@ant-design/icons-vue';
-    import { defineComponent, ref, createVNode } from 'vue';
+    import { defineComponent, ref, createVNode, onMounted } from 'vue';
     import { quillEditor, Quill } from 'vue3-quill';
     import ImageUploader from 'quill-image-uploader';
     import QuillTable from 'vue-quill-table';
@@ -154,10 +140,11 @@
     import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
     import { MathLiveComponent } from '../../components';
     import { renderKatex, markdownItRender } from '../../lib/index';
-    import { PUBLIC, PRIVATE } from '../../constants/index';
-    import { createPostResponse, uploadResponse } from '../../services/method/post';
+    import { uploadResponse } from '../../services/method/post';
     import { message } from 'ant-design-vue';
-    import { useRouter } from 'vue-router';
+    import { useRoute } from 'vue-router';
+    import { getProblemByIdResponse } from '../../services/method/get';
+    import { editProblemResponse } from '../../services/method/put';
 
     Quill.register(QuillTable.TableCell);
     Quill.register(QuillTable.TableRow);
@@ -167,17 +154,14 @@
     Quill.register('modules/imageUploader', ImageUploader);
 
     export default defineComponent({
-        name: 'CreatePost',
+        name: 'EditProblem',
         components: {
-            LockOutlined,
-            EyeOutlined,
-            DownOutlined,
             quillEditor,
             MathLiveComponent,
         },
         setup() {
-            /// Status
-            const statusPost = ref(PRIVATE);
+            const key = 'updatable';
+            const route = useRoute();
             ///Title
             const title = ref('');
             /// Tag
@@ -203,30 +187,26 @@
                 }
             }
 
-            const key = 'updatable';
-            const router = useRouter();
-            const createPost = async () => {
+            const editProblem = async () => {
                 if (
                     title.value &&
                     shortContent.value &&
                     (convertToHtml.value || contentMarkdown.value)
                 ) {
-                    const dataPost = {
+                    const dataProblem = {
                         title: title.value,
                         listTag: listTag.value,
                         shortContent: shortContent.value,
-                        statusPost: statusPost.value,
                         typeContent: tab.value,
                         content: tab.value === 'html' ? convertToHtml.value : contentMarkdown.value,
                     };
-                    message.loading({ content: 'Đăng bài viết...', key });
-                    const res = await createPostResponse(dataPost);
+                    message.loading({ content: 'Lưu câu hỏi...', key, duration: 50 });
+                    const res = await editProblemResponse(dataProblem, route.params.idProblem);
                     if (res.status) {
-                        message.success({ content: 'Đăng bài viết thành công!', key, duration: 2 });
-                        await router.push({ name: 'Home' });
+                        message.success({ content: 'Lưu câu hỏi thành công!', key, duration: 2 });
                     } else {
                         message.error({
-                            content: 'Đăng bài viết thất bại, Tiêu đề bài viết bị trùng lặp',
+                            content: 'Lưu câu hỏi thất bại, Tiều đề câu hỏi có sự trùng lặp',
                             key,
                             duration: 2,
                         });
@@ -236,36 +216,25 @@
                 }
             };
 
-            const savePost = async () => {
-                if (
-                    title.value &&
-                    shortContent.value &&
-                    (convertToHtml.value || contentMarkdown.value)
-                ) {
-                    const dataPost = {
-                        title: title.value,
-                        listTag: listTag.value,
-                        shortContent: shortContent.value,
-                        statusPost: PRIVATE,
-                        typeContent: tab.value,
-                        content: tab.value === 'html' ? convertToHtml.value : contentMarkdown.value,
-                    };
-                    message.loading({ content: 'Lưu bài viết...', key, duration: 50 });
-                    const res = await createPostResponse(dataPost);
-                    if (res.status) {
-                        message.success({ content: 'Lưu viết thành công!', key, duration: 2 });
-                        await router.push({ name: 'Home' });
+            onMounted(async () => {
+                const res = await getProblemByIdResponse(route.params.idProblem, {
+                    isEdit: true,
+                });
+                if (res.status) {
+                    title.value = res.data.nameProblem;
+                    listTag.value = res.data.tags.map(item => item.content);
+                    shortContent.value = res.data.shortContent;
+                    tab.value = res.data.typeContent;
+                    if (tab.value === 'html') {
+                        contentHtml.value = res.data.content;
+                        convertToHtml.value = res.data.content;
                     } else {
-                        message.error('Lưu viết thất bại');
+                        contentMarkdown.value = res.data.content;
                     }
-                } else {
-                    message.warning('Yêu cầu nhập đủ thông tin Tiêu đề và Nội dung thu gọn');
                 }
-            };
+            });
 
             return {
-                statusPost,
-                listStatus: [PRIVATE, PUBLIC],
                 title,
                 tag,
                 listTag,
@@ -315,17 +284,10 @@
                         ],
                     },
                 },
-                createPost,
-                savePost,
+                editProblem,
             };
         },
         computed: {
-            showStatusPost() {
-                if (this.statusPost === PRIVATE) {
-                    return 'Riêng tư';
-                }
-                return 'Công khai';
-            },
             renderTextEditor() {
                 if (this.tab === 'html') {
                     return renderKatex(this.convertToHtml);
@@ -338,9 +300,6 @@
             },
         },
         methods: {
-            handleClickStatus({ key }) {
-                this.statusPost = this.listStatus[key];
-            },
             addTag() {
                 if (this.tag.length !== 0 && !this.listTag.includes(this.tag)) {
                     this.listTag.push(this.tag.trim());
@@ -404,12 +363,12 @@
     .ant-tag-hidden {
         display: inline-block !important;
     }
-    .create-post {
+    .edit-problem {
         padding: 24px 25px;
 
         &__header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
         }
 
@@ -481,15 +440,15 @@
         }
     }
     @media (max-width: 700px) {
-        .create-post__editor-header {
+        .edit-problem__editor-header {
             flex-direction: column;
             justify-content: flex-start;
             align-items: flex-start;
         }
-        .create-post__editor-add-feature {
+        .edit-problem__editor-add-feature {
             margin-top: 16px;
         }
-        .create-post__show {
+        .edit-problem__show {
             margin-top: 64px;
         }
     }

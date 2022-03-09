@@ -26,7 +26,23 @@
             @remove="removeMessage"
         >
             <template v-slot:text-message-body="scopedProps">
-                <p class="sc-message--text-content" v-html="scopedProps.messageText"></p>
+                <p
+                    v-if="!scopedProps.messageText.includes('href=')"
+                    class="sc-message--text-content"
+                    v-html="renderKatex(scopedProps.messageText)"
+                ></p>
+                <p v-else class="sc-message--text-content">
+                    <a
+                        :href="convertStringToHtmlDOM(scopedProps.messageText)[1]"
+                        class="chatLink chatLink-url"
+                        target="_blank"
+                        ref="noopener noreferrer"
+                        :title="convertStringToHtmlDOM(scopedProps.messageText)[1]"
+                    >
+                        <FileOutlined />
+                        {{ convertStringToHtmlDOM(scopedProps.messageText)[0] }}
+                    </a>
+                </p>
                 <p
                     v-if="scopedProps.message.data.meta"
                     class="sc-message--meta"
@@ -49,10 +65,15 @@
 <script>
     import { defineComponent, ref, computed } from 'vue';
     import { useStore } from 'vuex';
+    import { FileOutlined } from '@ant-design/icons-vue';
     import { uploadResponse } from '../services/method/post';
+    import { renderKatex } from '../lib';
 
     export default defineComponent({
         name: 'TLUChat',
+        components: {
+            FileOutlined,
+        },
         setup() {
             const store = useStore();
 
@@ -158,6 +179,12 @@
                     index: indexMessage,
                 });
             };
+            const convertStringToHtmlDOM = string => {
+                const dom = new DOMParser().parseFromString(string, 'text/xml');
+                const href = dom.firstChild.getAttribute('href');
+                const splitHref = href.split('/');
+                return [splitHref[splitHref.length - 1], href];
+            };
 
             return {
                 participants,
@@ -175,6 +202,8 @@
                 handleOnType,
                 editMessage,
                 removeMessage,
+                convertStringToHtmlDOM,
+                renderKatex,
             };
         },
     });

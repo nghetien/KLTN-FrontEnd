@@ -82,6 +82,16 @@
                     <h2>
                         <i>Chỉnh sửa mới nhất:</i> {{ convertTimestamp(postDetail.lastUpdate) }}
                     </h2>
+                    <h2 style="margin-top: 10px">
+                        <i style="margin-right: 10px">Tags:</i>
+                        <a-tag
+                            color="processing"
+                            v-for="(tag, index) in postDetail.tags"
+                            :key="index"
+                        >
+                            {{ tag.content }}
+                        </a-tag>
+                    </h2>
                 </div>
                 <div class="post-detail__comment">
                     <Comment

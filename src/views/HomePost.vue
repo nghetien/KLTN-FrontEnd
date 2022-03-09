@@ -9,6 +9,7 @@
                 mode="horizontal"
             >
                 <a-menu-item key="new" class="custom-menu-item">Mới nhất</a-menu-item>
+                <a-menu-item key="trending" class="custom-menu-item">Xu hướng</a-menu-item>
                 <a-menu-item key="follow" class="custom-menu-item">Đang theo dõi</a-menu-item>
             </a-menu>
             <a-button type="primary"
@@ -78,6 +79,11 @@
                     Promise.all([
                         getDataPost({ queryUserFollow: true }),
                         getMaxPagePost({ queryUserFollow: true }),
+                    ]);
+                } else if (selectedKeys.value[0] === 'trending') {
+                    Promise.all([
+                        getDataPost({ trending: true }),
+                        getMaxPagePost({ trending: true }),
                     ]);
                 } else {
                     Promise.all([getDataPost(), getMaxPagePost()]);

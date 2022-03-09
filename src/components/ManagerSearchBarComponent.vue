@@ -31,7 +31,6 @@
             let timeout = null;
 
             const onSelect = email => {
-                console.log(email);
                 router.push(`/manager/profile/${email}`);
             };
             const searchResult = async query => {

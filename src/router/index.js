@@ -42,6 +42,16 @@ const routes = [
                 component: () => import('../views/user/CreateProblem'),
             },
             {
+                path: '/edit-post/:idPost',
+                name: 'EditPost',
+                component: () => import('../views/manager/EditPost'),
+            },
+            {
+                path: '/edit-problem/:idProblem',
+                name: 'EditProblem',
+                component: () => import('../views/manager/EditProblem'),
+            },
+            {
                 path: '/problem/:idProblem',
                 name: 'ProblemDetail',
                 component: () => import('../views/user/ProblemDetail'),
@@ -72,6 +82,16 @@ const routes = [
                 path: '/manager/problem',
                 name: 'ManagerProblem',
                 component: () => import('../views/manager/ManagerProblem.vue'),
+            },
+            {
+                path: '/manager/bookmark-post',
+                name: 'BookmarkPost',
+                component: () => import('../views/manager/BookmarkPost.vue'),
+            },
+            {
+                path: '/manager/bookmark-problem',
+                name: 'BookmarkProblem',
+                component: () => import('../views/manager/BookmarkProblem.vue'),
             },
         ],
     },

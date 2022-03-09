@@ -1,55 +1,44 @@
 <template>
-    <router-link :to="`/problem/${problem._id}`" class="preview-problem" @click="goToDetail">
+    <router-link :to="`/post/${post._id}`" class="preview-post" @click="goToDetail">
         <a-avatar
-            v-if="problem.avatar"
+            v-if="post.avatar"
             size="large"
-            class="preview-problem__avatar"
-            :src="problem.avatar"
+            class="preview-post__avatar"
+            :src="post.avatar"
             referrerpolicy="no-referrer"
         />
-        <a-avatar v-else size="large" class="preview-problem__avatar">
+        <a-avatar v-else size="large" class="preview-post__avatar">
             <template #icon>
                 <UserOutlined />
             </template>
         </a-avatar>
         <div>
-            <div class="preview-problem__header">
-                <span class="preview-problem__header-name">{{ problem.email }}</span>
-                <span class="preview-problem__header-date">
-                    {{ convertTimestamp(problem.lastUpdate) }}
+            <div class="preview-post__header">
+                <span class="preview-post__header-name">{{ post.email }}</span>
+                <span class="preview-post__header-date">
+                    {{ convertTimestamp(post.lastUpdate) }}
                 </span>
             </div>
-            <div class="preview-problem__title">
-                <h3 class="preview-problem__title-name">{{ problem.nameProblem }}</h3>
-                <div class="preview-problem__title-tag">
-                    <a-tag color="processing" v-for="(tag, index) in problem.tags" :key="index">{{
+            <div class="preview-post__title">
+                <h3 class="preview-post__title-name">{{ post.namePost }}</h3>
+                <div class="preview-post__title-tag">
+                    <a-tag color="processing" v-for="(tag, index) in post.tags" :key="index">{{
                         tag.content
                     }}</a-tag>
                 </div>
             </div>
-            <div class="preview-problem__short-content">
+            <div class="preview-post__short-content">
                 <p>
-                    {{ problem.shortContent }}
+                    {{ post.shortContent }}
                 </p>
             </div>
-            <div class="preview-problem__footer">
-                <div class="preview-problem__footer-item"><like-outlined /> {{ problem.like }}</div>
-                <div class="preview-problem__footer-item">
-                    <dislike-outlined /> {{ problem.dislike }}
-                </div>
-                <div class="preview-problem__footer-item"><eye-outlined /> {{ problem.view }}</div>
-                <div class="preview-problem__footer-item">
-                    <tag-outlined /> {{ problem.tags.length }}
-                </div>
-                <div class="preview-problem__footer-item">
-                    <message-outlined /> {{ problem.comment }}
-                </div>
-                <div class="preview-problem__footer-item">
-                    <book-outlined /> {{ problem.bookmark }}
-                </div>
-                <div v-if="problem.isHaveCorrectAnswer" class="preview-problem__footer-item">
-                    <check-outlined style="color: #41b883" />
-                </div>
+            <div class="preview-post__footer">
+                <div class="preview-post__footer-item"><like-outlined /> {{ post.like }}</div>
+                <div class="preview-post__footer-item"><dislike-outlined /> {{ post.dislike }}</div>
+                <div class="preview-post__footer-item"><eye-outlined /> {{ post.view }}</div>
+                <div class="preview-post__footer-item"><tag-outlined /> {{ post.tags.length }}</div>
+                <div class="preview-post__footer-item"><message-outlined /> {{ post.comment }}</div>
+                <div class="preview-post__footer-item"><book-outlined /> {{ post.bookmark }}</div>
             </div>
         </div>
     </router-link>
@@ -59,7 +48,6 @@
 <script>
     import { UserOutlined } from '@ant-design/icons-vue';
     import { defineComponent } from 'vue';
-    import { useRouter } from 'vue-router';
     import {
         EyeOutlined,
         TagOutlined,
@@ -67,12 +55,12 @@
         DislikeOutlined,
         LikeOutlined,
         BookOutlined,
-        CheckOutlined,
     } from '@ant-design/icons-vue';
     import { convertTimestamp } from '../../lib/index';
+    import { addTagToGroupResponse } from '../../services/method/post';
 
     export default defineComponent({
-        name: 'PreviewProblem',
+        name: 'SearchRecommend',
         components: {
             EyeOutlined,
             TagOutlined,
@@ -81,19 +69,23 @@
             LikeOutlined,
             UserOutlined,
             BookOutlined,
-            CheckOutlined,
         },
         props: {
-            problem: {
+            post: {
                 type: Object,
                 default: () => ({}),
             },
+            contentSearch: String,
         },
         setup(props) {
-            const router = useRouter();
             const goToDetail = () => {
-                router.push(`/problem/${props.problem._id}`);
                 window.scrollTo(0, 0);
+                if (props.contentSearch) {
+                    addTagToGroupResponse(
+                        props.contentSearch,
+                        props.post.tags.map(item => item._id.toString()),
+                    );
+                }
             };
 
             return {
@@ -105,7 +97,7 @@
 </script>
 
 <style scoped lang="scss">
-    .preview-problem {
+    .preview-post {
         display: flex;
         cursor: pointer;
 
@@ -147,7 +139,7 @@
             }
 
             &-tag {
-                padding: 5px 0;
+                padding: 5px 0px;
             }
         }
 

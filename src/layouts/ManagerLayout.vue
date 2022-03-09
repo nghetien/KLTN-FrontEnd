@@ -40,10 +40,13 @@
                     <template #icon>
                         <book-outlined />
                     </template>
-                    <template #title>Đã gắn thẻ</template>
-                    <a-menu-item key="tag_blog">Bài viết</a-menu-item>
-                    <a-menu-item key="tag_problem">Câu hỏi</a-menu-item>
-                    <a-menu-item key="tag_series">Series</a-menu-item>
+                    <template #title>Đã đánh dấu</template>
+                    <a-menu-item key="bookmark_blog" @click="handleClickBookmarkPost"
+                        >Bài viết</a-menu-item
+                    >
+                    <a-menu-item key="bookmark_problem" @click="handleClickBookmarkProblem"
+                        >Câu hỏi</a-menu-item
+                    >
                 </a-sub-menu>
             </a-menu>
         </a-layout-sider>
@@ -189,8 +192,15 @@
             const handleClickToManagerProblem = () => {
                 router.push(`/manager/problem`);
             };
+            const handleClickBookmarkPost = () => {
+                router.push(`/manager/bookmark-post`);
+            };
+            const handleClickBookmarkProblem = () => {
+                router.push(`/manager/bookmark-problem`);
+            };
 
             onMounted(() => {
+                window.scrollTo(0, 0);
                 if (route.path === '/manager/post') {
                     selectedKeys.value = ['post'];
                 } else if (route.path === '/manager/problem') {
@@ -207,6 +217,8 @@
                 handleClickToProfile,
                 handleClickToManagerPost,
                 handleClickToManagerProblem,
+                handleClickBookmarkPost,
+                handleClickBookmarkProblem,
             };
         },
         methods: {

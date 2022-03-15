@@ -115,7 +115,9 @@
                 findAllPostResponse().then(res => {
                     if (res.status) {
                         allPostRecommend.value = res.data;
-                        allPostRecommendShow.value = res.data;
+                        const cloneAllPost = [...allPostRecommend.value];
+                        allPostRecommendShow.value =
+                            res.data.length > 10 ? cloneAllPost.splice(0, 10) : res.data;
                         allPostRecommendInit.value = res.data;
                     }
                 });
